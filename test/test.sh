@@ -1,0 +1,2 @@
+#!/bin/bash
+python2 ~/Desktop/vistrans/bin-phylogenomics/vistrans -s ~/Desktop/vistrans/test/sample_inputs/trial.species.newick.txt -S ~/Desktop/vistrans/test/sample_inputs/trial.smap.txt -b ~/Desktop/vistrans/test/sample_inputs/trial.brecon -t ~/Desktop/vistrans/test/sample_inputs/trial.genes.newick.txt --output ~/Desktop/vistrans/test/tree.svg

@@ -108,7 +108,7 @@ else:
     
 
 phylo.add_implied_spec_nodes_brecon(tree, brecon)
-phylo.write_brecon("trial2.brecon",brecon)
+#phylo.write_brecon("trial2.brecon",brecon)
 
 transsvg.draw_tree(tree, brecon, stree, filename=conf.output,
                    snames=snames)
