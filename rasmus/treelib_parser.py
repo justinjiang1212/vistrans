@@ -93,9 +93,9 @@ lex.lex(debug=0, optimize=1, lextab="treelib_lex", outputdir=outdir)
 yacc.yacc(debug=0, optimize=1, tabmodule="treelib_tab", outputdir=outdir)
 
 if __name__ == "__main__":
-    print yacc.parse("(sss:1.0,(abc:.2, hello there:.1):2.0,abcd:4.0);")
-    print yacc.parse("((xax:1.0,bbx:2));")
-    print yacc.parse("((aa:1.0,bb:2)x:33,(cc:4,dd:5):6);")
+    print(yacc.parse("(sss:1.0,(abc:.2, hello there:.1):2.0,abcd:4.0);"))
+    print (yacc.parse("((xax:1.0,bbx:2));"))
+    print (yacc.parse("((aa:1.0,bb:2)x:33,(cc:4,dd:5):6);"))
 
 
 
