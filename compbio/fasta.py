@@ -10,10 +10,10 @@ import os
 from itertools import izip
 
 # rasmus imports
-from rasmus import util
+import util
 
 # seqlib imports
-from . import seqlib
+import seqlib
 from seqlib import SeqDict
 
 

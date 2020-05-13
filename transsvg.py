@@ -1,8 +1,8 @@
 
 from collections import defaultdict
 
-from rasmus import treelib, svg, util, stats
-from compbio import phylo
+import treelib, svg, util, stats
+import phylo
 
 
 def draw_stree(canvas, stree, slayout,

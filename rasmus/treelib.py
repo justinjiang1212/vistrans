@@ -6,7 +6,6 @@
 #
 #
 
-print "module import working"
 # python libs
 import copy
 import sys
