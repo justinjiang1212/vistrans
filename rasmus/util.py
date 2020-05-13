@@ -1149,7 +1149,7 @@ def open_stream(filename, mode="r", ignore_close=True):
         is_stream = True
 
     # if filename is a string then open it
-    elif isinstance(filename, basestring):
+    elif isinstance(filename, str):
         # open URLs
         if filename.startswith("http://"):
             import urllib2

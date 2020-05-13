@@ -80,7 +80,6 @@ def process_tree(tree, stree, gene2species):
 
 conf, args = o.parse_args()
 
-
 gene2species = phylo.read_gene2species(conf.smap)
 stree = treelib.read_tree(conf.stree)
 tree = treelib.read_tree(conf.tree)

@@ -153,12 +153,12 @@ def draw_tree(tree, brecon, stree,
         layout[node] = (x, y)
 
         if y > max(l[1] for l in slayout.values()) + 50:
-            print nx, ny
-            print px, py
-            print offset, frac
-            print ylists[snode], yorders[node]
-            print brecon[node]
-            print node, snode, layout[node]
+            print(nx, ny)
+            print (px, py)
+            print (offset, frac)
+            print (ylists[snode], yorders[node])
+            print (brecon[node])
+            print (node, snode, layout[node])
 
 
     # layout label sizes

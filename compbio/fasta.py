@@ -7,7 +7,7 @@
 # python imports
 import sys
 import os
-from itertools import izip
+import itertools
 
 # rasmus imports
 import util
