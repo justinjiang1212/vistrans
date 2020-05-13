@@ -16,8 +16,8 @@ import cmath
 import random
 
 # rasmus libs
-from rasmus import util
-from rasmus import tablelib
+import util
+import tablelib
 
 
 def logprod(lst):

@@ -12,12 +12,14 @@ import sys
 
 
 # rasmus imports
-from rasmus import stats
-from rasmus import treelib
-from rasmus import util
+#from rasmus import stats
+#from rasmus import treelib
+#from rasmus import util
+
+import stats, treelib, util
 
 # compbio imports
-from . import fasta
+import fasta
 
 
 #=============================================================================

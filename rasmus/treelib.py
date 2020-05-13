@@ -6,7 +6,7 @@
 #
 #
 
-
+print "module import working"
 # python libs
 import copy
 import sys
@@ -1086,7 +1086,7 @@ def read_parent_tree(treefile, labelfile=None, labels=None, tree=None):
             try:
                 tree.add_child(parent, child)
             except:
-                print i, parentid
+                print (i, parentid)
 
     # remove unused internal nodes
     labelset = set(labels)
@@ -1843,8 +1843,8 @@ def check_ages(tree, times):
                     node.dist)/node.dist) > .001):
                 draw_tree_names(tree, maxlen=7, minlen=7)
                 util.printcols([(a.name, b) for a, b in times.items()])
-                print
-                print node.name, node.dist, times[node.parent] - times[node]
+                print()
+                print (node.name, node.dist, times[node.parent] - times[node])
                 raise Exception("negative time span")
 check_timestamps = check_ages  # backwards compatiability
 
