@@ -18,7 +18,7 @@ import math
 import os
 import re
 import sys
-from itertools import imap, izip
+import itertools
 from collections import defaultdict
 import contextlib
 
@@ -109,17 +109,17 @@ class Dict (dict):
         def walk(node, path):
             if node.dim == 1:
                 for i in node:
-                    print >>out, "  ",
+                    print("  ", file=sys.stdout)
                     for j in path:
-                        print str(j) + ", ",
-                    print >>out, i, ":", node[i]
+                        print(str(j) + ", ")
+                    print(i, ":", node[i],  file=sys.stdout)
             else:
                 for i in node:
                     walk(node[i], path + [i])
 
-        print >>out, "< DictMatrix "
+        print("< DictMatrix ", file=sys.stdout)
         walk(self, [])
-        print >>out, ">"
+        print(">",  file=sys.stdout)
 
 
 class PushIter (object):
@@ -697,7 +697,7 @@ def islands(lst):
     return counts
 
 
-def binsearch(lst, val, cmp=cmp, order=1, key=None):
+'''def binsearch(lst, val, cmp=cmp, order=1, key=None):
     """Performs binary search for val in lst
 
        if val in lst:
@@ -753,7 +753,7 @@ def binsearch(lst, val, cmp=cmp, order=1, key=None):
     elif cmp(lst[top], val) == 0:
         return top, top
     else:
-        return low, top
+        return low, top'''
 
 
 #=============================================================================
@@ -1047,7 +1047,7 @@ def evalstr(text):
                 strs.append(str(eval(expr, global_dict, local_dict)))
             last = x.end()
         strs.append(text[last:len(text)])
-    except Exception, e:
+    except Exception as e:
         raise Exception("evalstr: " + str(e))
 
     return "".join(strs)
@@ -1450,7 +1450,7 @@ def str2bool(val):
         raise Exception("unknown string for bool '%s'" % val)
 
 
-def print_dict(dic, key=lambda x: x, val=lambda x: x,
+'''def print_dict(dic, key=lambda x: x, val=lambda x: x,
                num=None, cmp=cmp, order=None, reverse=False,
                spacing=4, out=sys.stdout,
                format=default_format,
@@ -1469,7 +1469,7 @@ def print_dict(dic, key=lambda x: x, val=lambda x: x,
         items.sort(cmp, reverse=reverse)
 
     printcols(items[:num], spacing=spacing, out=out, format=format,
-              justify=justify)
+              justify=justify)'''
 
 
 def print_row(*args, **kargs):
@@ -1660,7 +1660,7 @@ def makedirs(filename):
 # sorting
 
 
-def sortindex(lst, cmp=cmp, key=None, reverse=False):
+'''def sortindex(lst, cmp=cmp, key=None, reverse=False):
     """Returns the sorted indices of items in lst"""
     ind = range(len(lst))
 
@@ -1670,10 +1670,10 @@ def sortindex(lst, cmp=cmp, key=None, reverse=False):
         compare = lambda a, b: cmp(key(lst[a]), key(lst[b]))
 
     ind.sort(compare, reverse=reverse)
-    return ind
+    return ind'''
 
 
-def sortranks(lst, cmp=cmp, key=None, reverse=False, tied=False):
+def sortranks(lst, key=None, reverse=False, tied=False):
     """
     Returns the ranks of items in lst.
 
