@@ -9,8 +9,7 @@
 # python libs
 import copy
 import sys
-import StringIO
-
+from io import StringIO
 # rasmus libs
 try:
     from rasmus import util
