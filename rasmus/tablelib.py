@@ -29,10 +29,10 @@ Table can also handle custom types.  Custom types must do the following
 
 # python libs
 import copy
-from itertools import chain, imap, izip
+import itertools
 import os
 from sqlite3 import dbapi2 as sqlite
-from StringIO import StringIO
+from io import StringIO
 import sys
 
 # rasmus libs
@@ -121,9 +121,9 @@ _type_definitions = [
     ["string", str],
     ["unknown", str],  # backwards compatiable name
     ["str",    str],   # backwards compatiable name
-    ["string", unicode],
+    ["string", str],
     ["int",    int],
-    ["int",    long],
+    ["int",    float],
     ["float",  float],
     ["bool",   bool],
 ]
@@ -337,7 +337,7 @@ class Table (list):
                 # yield completed row
                 yield row
 
-        except Exception, e:
+        except Exception as e:
             # report error in parsing input file
             raise TableException(str(e), self.filename, lineno)
 
@@ -469,7 +469,7 @@ class Table (list):
                                               for h in self.headers) + "\n")
 
         else:
-            raise "unknown directive:", line
+            raise "unknown directive:"
 
     #===================================================================
     # Table manipulation

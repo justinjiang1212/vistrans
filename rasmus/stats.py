@@ -11,7 +11,7 @@ from math import floor
 from math import log
 from math import pi
 from math import sqrt
-from itertools import izip
+import itertools
 import cmath
 import random
 
