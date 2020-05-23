@@ -45,18 +45,22 @@ class Tree:
         self.nameToNode = None  # Dictionary of Node name (string) to Node
         self.type = None        # TreeType (TreeType.HOST or TreeType.PARASITE)
 
-    def getLeaves(self):
+    def updateLeaves(self):
         """ Sets self.leaves to the list of all leaf Nodes. """
+        self.leaves = self.postOrder(self.rootNode)
 
-        leaves = []                 #list of leaves from allNodes, to be filled out 
+    
+    def postOrder(self, node):
+        if node.leaf == True:
+            return [node]
+        
+        else:
+            leftSubtreeLeaves = self.postOrder(node.leftChild)
+            rightSubtreeLeaves = self.postOrder(node.rightChild)
+            return leftSubtreeLeaves + rightSubtreeLeaves
+        
+        
 
-        for node in self.allNodes:  #assumes that each leaf will have no children, and that every node that is not a leaf will have children
-            if (node.leftChild == None) and (node.rightChild == None):
-                node.leaf = True
-                leaves.append(node)
-
-        self.leaves = leaves
-        return self.leaves
     
 
 
