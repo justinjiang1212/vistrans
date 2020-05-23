@@ -48,6 +48,29 @@ class Tree:
     def getLeaves(self):
         """ Sets self.leaves to the list of all leaf Nodes. """
 
+        leaves = []                 #list of leaves from allNodes
+        leaf_indexes = []           #list of the index of each leaf in allNodes
+
+        orders = []                 #corresponding order for each node in allNodes
+        for node in self.allNodes:  #populate orders 
+            orders.append(node.order)
+
+        max_order = max(orders)     #finds the largest order in allNodes; we know that each leaf will have this value
+
+        for i in range(0,len(self.allNodes)):           #finds the index of each leaf in allNodes using max_order
+            if self.allNodes[i].order == max_order:
+                leaf_indexes.append(i)
+        
+        for leaf_index in leaf_indexes:                  #appends leaves with each leaf by using its index
+            leaves.append(self.allNodes[leaf_index])
+
+        self.leaves = leaves
+    
+        return self.leaves
+    
+
+
+
 
 # An Event keeps the name of the parasite (a string; this is redundant 
 # since it's just the key), the name of the host to which that parasite is mapped in the

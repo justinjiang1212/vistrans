@@ -1,4 +1,4 @@
-from RenderStarter import Node, Event, ReconMap, EventType
+from RenderStarter import Node, Event, ReconMap, EventType, Tree
 ### Host Tree
 
 root = Node("root")
@@ -30,6 +30,10 @@ root.rightChild = leaf3
 internal1.leftChild = leaf4
 internal1.rightChild = leaf5
 
+hostTree = Tree()
+hostTree.rootNode = root
+hostTree.allNodes = [root, internal1, leaf4, leaf5, leaf3]
+hostTree.type = 1
 ### Parasite Tree
 
 pRoot = Node("pRoot")
@@ -61,6 +65,10 @@ pRoot.rightChild = pInternal
 pInternal.leftChild = pLeaf9
 pInternal.rightChild = pLeaf10
 
+ParasiteTree = Tree()
+ParasiteTree.rootNode = pRoot
+ParasiteTree.allNodes = [pRoot, pInternal, pLeaf7, pLeaf9, pLeaf10]
+ParasiteTree.type = 2
 
 ### Reconciliation
 
