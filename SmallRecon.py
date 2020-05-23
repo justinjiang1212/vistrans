@@ -32,6 +32,36 @@ internal1.rightChild = leaf5
 
 ### Parasite Tree
 
+pRoot = Node("pRoot")
+pRoot.root = True
+pRoot.order = 1
+
+pInternal = Node("pInternal")
+pInternal.leaf = False
+pInternal.parent = pRoot
+pInternal.order = 3
+
+pLeaf7 = Node("7")
+pLeaf7.leaf = True
+pLeaf7.parent = pRoot
+pLeaf7.order = 4
+
+pLeaf9 = Node("9")
+pLeaf9.leaf = True
+pLeaf9.parent = pInternal
+pLeaf9.order = 4
+
+pLeaf10 = Node("10")
+pLeaf10.leaf = True
+pLeaf10.parent = pInternal
+pLeaf10.order = 4
+
+pRoot.leftChild = pLeaf7
+pRoot.rightChild = pInternal
+pInternal.leftChild = pLeaf9
+pInternal.rightChild = pLeaf10
+
+
 ### Reconciliation
 
 R = ReconMap()
