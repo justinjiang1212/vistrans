@@ -48,24 +48,14 @@ class Tree:
     def getLeaves(self):
         """ Sets self.leaves to the list of all leaf Nodes. """
 
-        leaves = []                 #list of leaves from allNodes
-        leaf_indexes = []           #list of the index of each leaf in allNodes
+        leaves = []                 #list of leaves from allNodes, to be filled out 
 
-        orders = []                 #corresponding order for each node in allNodes
-        for node in self.allNodes:  #populate orders 
-            orders.append(node.order)
-
-        max_order = max(orders)     #finds the largest order in allNodes; we know that each leaf will have this value
-
-        for i in range(0,len(self.allNodes)):           #finds the index of each leaf in allNodes using max_order
-            if self.allNodes[i].order == max_order:
-                leaf_indexes.append(i)
-        
-        for leaf_index in leaf_indexes:                  #appends leaves with each leaf by using its index
-            leaves.append(self.allNodes[leaf_index])
+        for node in self.allNodes:  #assumes that each leaf will have no children, and that every node that is not a leaf will have children
+            if (node.leftChild == None) and (node.rightChild == None):
+                node.leaf = True
+                leaves.append(node)
 
         self.leaves = leaves
-    
         return self.leaves
     
 
@@ -101,6 +91,17 @@ def computetHostNodeLogicalPositions(host_tree):
     :param host_tree:  A Tree object representing the host tree
     :return None
     """
+    #set logical cols
+    for node in host_tree.allNodes:
+        node.logicalCol = node.order
+    
+    #helper function to sort leaves by clades
+
+    for leaf in host_tree.allNodes:
+        ###finish code later
+        pass
+    
+
 
     ### Here's what needs to happen here:
     ### The logicalCol of each Node is just its order.
@@ -109,6 +110,12 @@ def computetHostNodeLogicalPositions(host_tree):
     ###         to right (bottom) and make the logicalRow the indices 0 to numLeaves-1
     ###     2.  Moving up the tree, the logical row of a node is the midpoint (a float) of 
     ###         the logical rows of its two children.
+
+
+def sort_leaves(tree):
+    """"sorts leaves of host tree by genetic distance"""
+    return 
+
 
 def computeParasiteNodeLogicalPositions(parasite_tree, host_tree, recon_map):
     """
@@ -179,3 +186,39 @@ def renderParasiteTree(parasite_tree, host_tree, recon_map):
     ### draw the edges of the parasite tree and, in particular, to draw the losses correctly.
 
 
+
+
+#host tree for testing
+root = Node("root")
+root.root = True
+root.order = 0
+
+internal1 = Node("internal") # parent of 4 and 5
+internal1.leaf = False
+internal1.parent = root
+internal1.order = 2
+
+leaf4 = Node("4")
+leaf4.leaf = True
+leaf4.parent = internal1
+leaf4.order = 4
+
+leaf5 = Node("5")
+leaf5.leaf = True
+leaf5.parent = internal1
+leaf5.order = 4
+
+leaf3 = Node("3")
+leaf3.leaf = True
+leaf3.parent = root
+leaf3.order = 4
+
+root.leftChild = internal1
+root.rightChild = leaf3
+internal1.leftChild = leaf4
+internal1.rightChild = leaf5
+
+hostTree = Tree()
+hostTree.rootNode = root
+hostTree.allNodes = [root, internal1, leaf4, leaf5, leaf3]
+hostTree.type = 1
