@@ -94,7 +94,7 @@ class ReconMap:
         self.updateValues(event.eventType)
         
     def updateValues(self, eventType):
-        
+        '''Updates the number of duplications, losses, and transfers'''
         if eventType == EventType.DUPLICATION:
             self.duplications += 1
         if eventType == EventType.LOSS:
