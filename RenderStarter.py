@@ -100,6 +100,7 @@ def computetHostNodeLogicalPositions(host_tree):
     for node in host_tree.allNodes:
         node.logicalCol = node.order
 
+    #sets logical row values for leaves in the order they appear in host_tree.leaves
     logical_row_counter = 0
     for leaf in host_tree.leaves:
         leaf.logicalRow = logical_row_counter
@@ -112,16 +113,19 @@ def computetHostNodeLogicalPositions(host_tree):
 def calcLogRow(node):
     """takes a Node, usually the root of the tree, and traverses the tree until it finds nodes with row values, usually leaves"""
 
+    #if both children of node have a logical row value, we can calculate the logical row value of node
     if node.rightChild.logicalRow is not None and node.leftChild.logicalRow is not None:
         node.logicalRow = ((node.rightChild.logicalRow+node.leftChild.logicalRow)/2)
         return
 
+    #recursively calculate logical row values of the right subtree 
     if node.rightChild.logicalRow == None:
         calcLogRow(node.rightChild)
-
+    #recursively calculate logical row values of the left subtree
     if node.leftChild.logicalRow == None:
         calcLogRow(node.leftChild)
     
+    #finally, calculate logical row value of node using just-calculated children values
     node.logicalRow = ((node.rightChild.logicalRow+node.leftChild.logicalRow)/2)
 
 
