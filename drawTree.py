@@ -1,5 +1,4 @@
-from RenderStarter import Node, Event, ReconMap, EventType, Tree
-
+from RenderStarter import *
 
 def computetHostNodeLogicalPositions(host_tree):
     """ 
@@ -20,7 +19,7 @@ def computetHostNodeLogicalPositions(host_tree):
         logical_row_counter += 1
     
     #helper function to assign row values, postorder traversal
-    calcLogRow(host_tree.rootNode)
+    computetHostNodeLogicalPositions_helper(host_tree.rootNode)
 
     
 def computetHostNodeLogicalPositions_helper(node):
@@ -155,3 +154,5 @@ hostTree = Tree()
 hostTree.rootNode = root
 hostTree.allNodes = [root, internal1, leaf4, leaf5, leaf3]
 hostTree.type = 1
+
+#hostTree.updateLeaves()

@@ -49,7 +49,6 @@ class Tree:
         """ Sets self.leaves to the list of all leaf Nodes. """
         self.leaves = self.updateLeaves_helper(self.rootNode)
 
-    
     def updateLeaves_helper(self, node):
         if node.is_leaf:
             return [node]
