@@ -38,12 +38,24 @@ class Node:
 
 # The Tree type defines a tree
 class Tree:
-    def __init__(self):
-        self.rootNode = None    # Node:  Root Node of the Tree
-        self.allNodes = None    # List of Nodes:  All Nodes in the tree
-        self.leaves = None      # List of Nodes:  List of leaves in tree from left (top) to right (bottom)
-        self.nameToNode = None  # Dictionary of Node name (string) to Node
-        self.type = None        # TreeType (TreeType.HOST or TreeType.PARASITE)
+    def __init__(self, rootNode=None, allNodes=None, treeType=None):
+        self.rootNode = rootNode    # Node:  Root Node of the Tree
+        self.allNodes = allNodes    # List of Nodes:  All Nodes in the tree
+
+
+        self.leaves = []            # List of Nodes:  List of leaves in tree from left (top) to right (bottom)
+        self.updateLeaves()
+
+        self.nameToNode = dict()    # Dictionary of Node name (string) to Node
+        self.setNameToNode()
+
+        self.type = treeType            # TreeType (TreeType.HOST or TreeType.PARASITE)
+
+    def setNameToNode(self):
+        if self.allNodes:
+            for node in self.allNodes:
+                self.nameToNode[node.name] = node
+
 
     def updateLeaves(self):
         """ Sets self.leaves to the list of all leaf Nodes. """
@@ -76,8 +88,8 @@ class Event:
 # to Events.  
 class ReconMap:
     def __init__(self):
-        self.recon = None       # Dictionary:  Keys are parasite names (strings) and values 
-                                # are Events
+        self.recon = dict()       # Dictionary:  Keys are parasite names (strings) and values 
+                                  # are Events
 
         #Not sure if we are given the number of these events are not but for display purposes I have made variables for these anyways
         self.duplications = 0
