@@ -1,5 +1,5 @@
 import RenderStarter
-def computetHostNodeLogicalPositions(host_tree):
+def computeHostNodeLogicalPositions(host_tree):
     """ 
     Sets the logicalRow and logicalCol values of each Node in host_tree.
     Assumes that each host Node has its order set already and this function
@@ -60,6 +60,16 @@ def computeParasiteNodeLogicalPositions(parasite_tree, host_tree, recon_map):
     :return None
     """
 
+    #set logical columns of each node in the parasite tree
+    for node in parasite_tree.allNodes:
+        node.logicalCol = node.order
+    
+    #set the logical rows of each node in the parasite tree
+    for node in parasite_tree.allNodes:
+        event = recon_map.getEvent(node.name)
+        node.logicalRow = host_tree.nameToNode[event.hostName].logicalRow
+        
+    
     ### Here's what needs to happen here:
     ### The logicalCol of each Node is just its order.
     ### The logicalRows are computed as follows:
@@ -119,7 +129,7 @@ def renderParasiteTree(parasite_tree, host_tree, recon_map):
 
 
 
-
+### Host Tree
 root = RenderStarter.Node("root")
 root.root = True
 root.order = 0
@@ -149,9 +159,60 @@ root.rightChild = leaf3
 internal1.leftChild = leaf4
 internal1.rightChild = leaf5
 
-#Host Tree
+
 allNodes = [root, internal1, leaf4, leaf5, leaf3]
 treeType = RenderStarter.TreeType.HOST
-hostTree = RenderStarter.Tree(root, allNodes, treeType)
+hostTree = RenderStarter.Tree(root, allNodes, treeType) #Creates Host Tree
 
-#Parasite Tree
+
+
+### Parasite Tree
+
+pRoot = RenderStarter.Node("pRoot")
+pRoot.root = True
+pRoot.order = 1
+
+pInternal = RenderStarter.Node("pInternal")
+pInternal.is_leaf = False
+pInternal.parent = pRoot
+pInternal.order = 3
+
+pLeaf7 = RenderStarter.Node("7")
+pLeaf7.is_leaf = True
+pLeaf7.parent = pRoot
+pLeaf7.order = 4
+
+pLeaf9 = RenderStarter.Node("9")
+pLeaf9.is_leaf = True
+pLeaf9.parent = pInternal
+pLeaf9.order = 4
+
+pLeaf10 = RenderStarter.Node("10")
+pLeaf10.is_leaf = True
+pLeaf10.parent = pInternal
+pLeaf10.order = 4
+
+pRoot.leftChild = pLeaf7
+pRoot.rightChild = pInternal
+pInternal.leftChild = pLeaf9
+pInternal.rightChild = pLeaf10
+
+pAllNodes = [pRoot, pInternal, pLeaf7, pLeaf9, pLeaf10]
+pTreeType = RenderStarter.TreeType.PARASITE
+parasiteTree = RenderStarter.Tree(pRoot, pAllNodes, pTreeType)
+
+
+### Reconciliation
+
+R = RenderStarter.ReconMap()
+Event1 = RenderStarter.Event("7", "4", RenderStarter.EventType.TIPTIP)
+Event2 = RenderStarter.Event("9", "5", RenderStarter.EventType.TIPTIP)
+Event3 = RenderStarter.Event("10", "3", RenderStarter.EventType.TIPTIP)
+Event4 = RenderStarter.Event("pInternal", "5", RenderStarter.EventType.TRANSFER)
+Event5 = RenderStarter.Event("pRoot", "internal", RenderStarter.EventType.COSPECIATION)
+
+R.addEvent(Event1)
+R.addEvent(Event2)
+R.addEvent(Event3)
+R.addEvent(Event4)
+R.addEvent(Event5)

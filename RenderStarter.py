@@ -91,30 +91,16 @@ class ReconMap:
         self.recon = dict()       # Dictionary:  Keys are parasite names (strings) and values 
                                   # are Events
 
-        #Not sure if we are given the number of these events are not but for display purposes I have made variables for these anyways
-        self.duplications = 0
-        self.losses = 0
-        self.transfers = 0
-        
-
     def addEvent(self, event):
         '''Adds event to the recon dictionary'''
         #Set Dictionary Key and Value
         self.recon[event.parsiteName] = event
-
-        #Update the number of diplications, losses, and transfers
-        self.updateValues(event.eventType)
-        
-    def updateValues(self, eventType):
-        '''Updates the number of duplications, losses, and transfers'''
-        if eventType == EventType.DUPLICATION:
-            self.duplications += 1
-        if eventType == EventType.LOSS:
-            self.losses += 1
-        if eventType == EventType.TRANSFER:
-            self.transfers += 1
     
     def getMap(self):
         '''returns the reconMap'''
         return self.recon
+    
+    def getEvent(self, node_name):
+        '''returns the event associated with node'''
+        return self.recon[node_name]
 
