@@ -57,7 +57,8 @@ class Tree:
         else:
             leftSubtreeLeaves = self.postOrder(node.leftChild)
             rightSubtreeLeaves = self.postOrder(node.rightChild)
-            return leftSubtreeLeaves + rightSubtreeLeaves
+            leftSubtreeLeaves.extend(rightSubtreeLeaves)
+            return leftSubtreeLeaves
         
         
 
@@ -98,13 +99,30 @@ def computetHostNodeLogicalPositions(host_tree):
     #set logical cols
     for node in host_tree.allNodes:
         node.logicalCol = node.order
-    
-    #helper function to sort leaves by clades
 
-    for leaf in host_tree.allNodes:
-        ###finish code later
-        pass
+    logical_row_counter = 0
+    for leaf in host_tree.leaves:
+        leaf.logicalRow = logical_row_counter
+        logical_row_counter += 1
     
+    #helper function to assign row values, postorder traversal
+    calcLogRow(host_tree.rootNode)
+
+    
+def calcLogRow(node):
+    """takes a Node, usually the root of the tree, and traverses the tree until it finds nodes with row values, usually leaves"""
+
+    if node.rightChild.logicalRow is not None and node.leftChild.logicalRow is not None:
+        node.logicalRow = ((node.rightChild.logicalRow+node.leftChild.logicalRow)/2)
+        return
+
+    if node.rightChild.logicalRow == None:
+        calcLogRow(node.rightChild)
+
+    if node.leftChild.logicalRow == None:
+        calcLogRow(node.leftChild)
+    
+    node.logicalRow = ((node.rightChild.logicalRow+node.leftChild.logicalRow)/2)
 
 
     ### Here's what needs to happen here:
@@ -115,11 +133,7 @@ def computetHostNodeLogicalPositions(host_tree):
     ###     2.  Moving up the tree, the logical row of a node is the midpoint (a float) of 
     ###         the logical rows of its two children.
 
-
-def sort_leaves(tree):
-    """"sorts leaves of host tree by genetic distance"""
-    return 
-
+g
 
 def computeParasiteNodeLogicalPositions(parasite_tree, host_tree, recon_map):
     """
