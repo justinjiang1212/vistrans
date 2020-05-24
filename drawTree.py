@@ -149,9 +149,9 @@ root.rightChild = leaf3
 internal1.leftChild = leaf4
 internal1.rightChild = leaf5
 
-hostTree = RenderStarter.Tree()
-hostTree.rootNode = root
-hostTree.allNodes = [root, internal1, leaf4, leaf5, leaf3]
-hostTree.type = 1
+#Host Tree
+allNodes = [root, internal1, leaf4, leaf5, leaf3]
+treeType = RenderStarter.TreeType.HOSTtype
+hostTree = RenderStarter.Tree(root, allNodes, treeType)
 
-#hostTree.updateLeaves()
+#Parasite Tree
