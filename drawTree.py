@@ -151,7 +151,7 @@ internal1.rightChild = leaf5
 
 #Host Tree
 allNodes = [root, internal1, leaf4, leaf5, leaf3]
-treeType = RenderStarter.TreeType.HOSTtype
+treeType = RenderStarter.TreeType.HOST
 hostTree = RenderStarter.Tree(root, allNodes, treeType)
 
 #Parasite Tree
