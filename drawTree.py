@@ -216,3 +216,32 @@ R.addEvent(Event2)
 R.addEvent(Event3)
 R.addEvent(Event4)
 R.addEvent(Event5)
+
+###TESTS
+'''
+hostTree.updateLeaves()
+parasiteTree.updateLeaves()
+
+print("These are the leaves of the host tree:")
+for leaf in hostTree.leaves:
+    print(leaf.name)
+
+print("These are the leaves of the parasite tree:")
+for leaf in parasiteTree.leaves:
+    print(leaf.name)
+
+print()
+
+computeHostNodeLogicalPositions(hostTree)
+print("These are the logical row values for each node in the host tree")
+for node in hostTree.allNodes:
+    print(node.name,str(node.logicalRow))
+
+print()
+
+computeParasiteNodeLogicalPositions(parasiteTree, hostTree,R)
+print("These are the logical row values for each node in the parasite tree")
+for node in parasiteTree.allNodes:
+    print(node.name,str(node.logicalRow))
+
+'''
