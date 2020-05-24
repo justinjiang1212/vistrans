@@ -1,4 +1,4 @@
-import RenderStarter
+from RenderStarter import Node, Event, ReconMap, EventType, Tree
 
 
 def computetHostNodeLogicalPositions(host_tree):
@@ -23,8 +23,8 @@ def computetHostNodeLogicalPositions(host_tree):
     calcLogRow(host_tree.rootNode)
 
     
-def calcLogRow(node):
-    """takes a Node, usually the root of the tree, and traverses the tree until it finds nodes with row values, usually leaves"""
+def computetHostNodeLogicalPositions_helper(node):
+    """takes a Node, and calculates logical row values"""
 
     #if both children of node have a logical row value, we can calculate the logical row value of node
     if node.rightChild.logicalRow is not None and node.leftChild.logicalRow is not None:
@@ -33,10 +33,10 @@ def calcLogRow(node):
 
     #recursively calculate logical row values of the right subtree 
     if node.rightChild.logicalRow == None:
-        calcLogRow(node.rightChild)
+        computetHostNodeLogicalPositions_helper(node.rightChild)
     #recursively calculate logical row values of the left subtree
     if node.leftChild.logicalRow == None:
-        calcLogRow(node.leftChild)
+        computetHostNodeLogicalPositions_helper(node.leftChild)
     
     #finally, calculate logical row value of node using just-calculated children values
     node.logicalRow = ((node.rightChild.logicalRow+node.leftChild.logicalRow)/2)
