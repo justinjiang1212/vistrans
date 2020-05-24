@@ -1,5 +1,4 @@
-from RenderStarter import *
-
+import RenderStarter
 def computetHostNodeLogicalPositions(host_tree):
     """ 
     Sets the logicalRow and logicalCol values of each Node in host_tree.
@@ -121,26 +120,26 @@ def renderParasiteTree(parasite_tree, host_tree, recon_map):
 
 
 
-root = Node("root")
+root = RenderStarter.Node("root")
 root.root = True
 root.order = 0
 
-internal1 = Node("internal") # parent of 4 and 5
+internal1 = RenderStarter.Node("internal") # parent of 4 and 5
 internal1.is_leaf = False
 internal1.parent = root
 internal1.order = 2
 
-leaf4 = Node("4")
+leaf4 = RenderStarter.Node("4")
 leaf4.is_leaf = True
 leaf4.parent = internal1
 leaf4.order = 4
 
-leaf5 = Node("5")
+leaf5 = RenderStarter.Node("5")
 leaf5.is_leaf = True
 leaf5.parent = internal1
 leaf5.order = 4
 
-leaf3 = Node("3")
+leaf3 = RenderStarter.Node("3")
 leaf3.is_leaf = True
 leaf3.parent = root
 leaf3.order = 4
@@ -150,7 +149,7 @@ root.rightChild = leaf3
 internal1.leftChild = leaf4
 internal1.rightChild = leaf5
 
-hostTree = Tree()
+hostTree = RenderStarter.Tree()
 hostTree.rootNode = root
 hostTree.allNodes = [root, internal1, leaf4, leaf5, leaf3]
 hostTree.type = 1
