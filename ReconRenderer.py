@@ -1,4 +1,4 @@
-import RenderStarter
+import RenderClasses
 def computeHostNodeLogicalPositions(host_tree):
     """ 
     Sets the logicalRow and logicalCol values of each Node in host_tree.
@@ -130,26 +130,26 @@ def renderParasiteTree(parasite_tree, host_tree, recon_map):
 
 
 ### Host Tree
-root = RenderStarter.Node("root")
+root = RenderClasses.Node("root")
 root.root = True
 root.order = 0
 
-internal1 = RenderStarter.Node("internal") # parent of 4 and 5
+internal1 = RenderClasses.Node("internal") # parent of 4 and 5
 internal1.is_leaf = False
 internal1.parent = root
 internal1.order = 2
 
-leaf4 = RenderStarter.Node("4")
+leaf4 = RenderClasses.Node("4")
 leaf4.is_leaf = True
 leaf4.parent = internal1
 leaf4.order = 4
 
-leaf5 = RenderStarter.Node("5")
+leaf5 = RenderClasses.Node("5")
 leaf5.is_leaf = True
 leaf5.parent = internal1
 leaf5.order = 4
 
-leaf3 = RenderStarter.Node("3")
+leaf3 = RenderClasses.Node("3")
 leaf3.is_leaf = True
 leaf3.parent = root
 leaf3.order = 4
@@ -161,33 +161,33 @@ internal1.rightChild = leaf5
 
 
 allNodes = [root, internal1, leaf4, leaf5, leaf3]
-treeType = RenderStarter.TreeType.HOST
-hostTree = RenderStarter.Tree(root, allNodes, treeType) #Creates Host Tree
+treeType = RenderClasses.TreeType.HOST
+hostTree = RenderClasses.Tree(root, allNodes, treeType) #Creates Host Tree
 
 
 
 ### Parasite Tree
 
-pRoot = RenderStarter.Node("pRoot")
+pRoot = RenderClasses.Node("pRoot")
 pRoot.root = True
 pRoot.order = 1
 
-pInternal = RenderStarter.Node("pInternal")
+pInternal = RenderClasses.Node("pInternal")
 pInternal.is_leaf = False
 pInternal.parent = pRoot
 pInternal.order = 3
 
-pLeaf7 = RenderStarter.Node("7")
+pLeaf7 = RenderClasses.Node("7")
 pLeaf7.is_leaf = True
 pLeaf7.parent = pRoot
 pLeaf7.order = 4
 
-pLeaf9 = RenderStarter.Node("9")
+pLeaf9 = RenderClasses.Node("9")
 pLeaf9.is_leaf = True
 pLeaf9.parent = pInternal
 pLeaf9.order = 4
 
-pLeaf10 = RenderStarter.Node("10")
+pLeaf10 = RenderClasses.Node("10")
 pLeaf10.is_leaf = True
 pLeaf10.parent = pInternal
 pLeaf10.order = 4
@@ -198,18 +198,18 @@ pInternal.leftChild = pLeaf9
 pInternal.rightChild = pLeaf10
 
 pAllNodes = [pRoot, pInternal, pLeaf7, pLeaf9, pLeaf10]
-pTreeType = RenderStarter.TreeType.PARASITE
-parasiteTree = RenderStarter.Tree(pRoot, pAllNodes, pTreeType)
+pTreeType = RenderClasses.TreeType.PARASITE
+parasiteTree = RenderClasses.Tree(pRoot, pAllNodes, pTreeType)
 
 
 ### Reconciliation
 
-R = RenderStarter.ReconMap()
-Event1 = RenderStarter.Event("7", "4", RenderStarter.EventType.TIPTIP)
-Event2 = RenderStarter.Event("9", "5", RenderStarter.EventType.TIPTIP)
-Event3 = RenderStarter.Event("10", "3", RenderStarter.EventType.TIPTIP)
-Event4 = RenderStarter.Event("pInternal", "5", RenderStarter.EventType.TRANSFER)
-Event5 = RenderStarter.Event("pRoot", "internal", RenderStarter.EventType.COSPECIATION)
+R = RenderClasses.ReconMap()
+Event1 = RenderClasses.Event("7", "4", RenderClasses.EventType.TIPTIP)
+Event2 = RenderClasses.Event("9", "5", RenderClasses.EventType.TIPTIP)
+Event3 = RenderClasses.Event("10", "3", RenderClasses.EventType.TIPTIP)
+Event4 = RenderClasses.Event("pInternal", "5", RenderClasses.EventType.TRANSFER)
+Event5 = RenderClasses.Event("pRoot", "internal", RenderClasses.EventType.COSPECIATION)
 
 R.addEvent(Event1)
 R.addEvent(Event2)
@@ -218,7 +218,7 @@ R.addEvent(Event4)
 R.addEvent(Event5)
 
 ###TESTS
-'''
+
 hostTree.updateLeaves()
 parasiteTree.updateLeaves()
 
@@ -244,4 +244,3 @@ print("These are the logical row values for each node in the parasite tree")
 for node in parasiteTree.allNodes:
     print(node.name,str(node.logicalRow))
 
-'''
