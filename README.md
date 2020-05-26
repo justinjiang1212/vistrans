@@ -1,2 +1,2 @@
 # vistrans
-Visualization code for reconciliation from eMPRess output.
+Visualization code to view reconciliation from eMPRess output.
