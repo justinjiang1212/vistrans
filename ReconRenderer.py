@@ -100,7 +100,7 @@ def computeHostNodeActualPositions(host_tree, x_min, x_max, y_min, y_max):
 
 
 
-def computeParasiteNodeActualPositions(parasite_tree, x_min, x_max, y_min, y_max):
+def computeParasiteNodeActualPositions(parasite_tree, x_min, x_max, y_min, y_max, tree_offset = 5):
     """
     Sets the xcoord and ycoord for rendering the Node of the parasite tree
     This will require some additional input arguments to indicate offsets
@@ -110,6 +110,7 @@ def computeParasiteNodeActualPositions(parasite_tree, x_min, x_max, y_min, y_max
     :param x_max: Integer; maximum y-coordinate for tree rendering
     :param y_min: Integer; minimum y-coordinate for tree rendering
     :param y_max: Integer; maximum y-coordinate for tree rendering
+    :param tree_offset: Integer; value to indicated how far the parasite tree will be drawn offset to the host; default value 5
     :return: None
     """
 
