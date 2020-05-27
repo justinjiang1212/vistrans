@@ -110,9 +110,21 @@ def computeParasiteNodeActualPositions(parasite_tree, x_min, x_max, y_min, y_max
     :param x_max: Integer; maximum y-coordinate for tree rendering
     :param y_min: Integer; minimum y-coordinate for tree rendering
     :param y_max: Integer; maximum y-coordinate for tree rendering
-    :param tree_offset: Integer; value to indicated how far the parasite tree will be drawn offset to the host; default value 5
+    :param tree_offset: Integer; value to indicated how far the parasite tree will be drawn offset to the host on the y axis; default value 5
     :return: None
     """
+
+    x_unit = (x_max-x_min)/ parasite_tree.leaves[0].logicalCol
+
+    largest_logical_row = max([leaf.logicalRow for leaf in parasite_tree.leaves])
+    y_unit = (y_max-y_min)/ largest_logical_row
+
+    #update actual positions
+    for node in parasite_tree.allNodes:
+        node.xcoord = (node.logicalCol * x_unit)
+        node.ycoord = (node.logicalRow * y_unit)+ tree_offset
+    
+    
 
 
 def renderHostTree(host_tree):
@@ -257,10 +269,18 @@ print("These are the logical row values for each node in the parasite tree")
 for node in parasiteTree.allNodes:
     print(node.name,str(node.logicalRow))
 
+print()
 
 print("These are the actual xy coords for each node in the host tree on a 100x100 graph")
+print("assume that the actual canvas is 120x120, and that there is a margin")
 computeHostNodeActualPositions(hostTree, 0, 100, 0, 100)    
 
 for node in hostTree.allNodes:
+    print(node.name, str(node.xcoord), str(node.ycoord))
+
+print()
+print("These are the actual xy coords for each node in the parasite tree on a 120x120 graph with a 20 unit margin, with a tree_offset of 5 units")
+computeParasiteNodeActualPositions(parasiteTree, 0, 100, 0, 100)
+for node in parasiteTree.allNodes:
     print(node.name, str(node.xcoord), str(node.ycoord))
 
