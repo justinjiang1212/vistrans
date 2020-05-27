@@ -87,6 +87,18 @@ def computeHostNodeActualPositions(host_tree, x_min, x_max, y_min, y_max):
     :return: None
     """
 
+    x_unit = (x_max-x_min)/ host_tree.leaves[0].logicalCol
+
+    largest_logical_row = max([leaf.logicalRow for leaf in host_tree.leaves])
+    y_unit = (y_max-y_min)/ largest_logical_row
+
+    #update actual positions
+    for node in host_tree.allNodes:
+        node.xcoord = node.logicalCol * x_unit
+        node.ycoord = node.logicalRow * y_unit
+
+
+
 
 def computeParasiteNodeActualPositions(parasite_tree, x_min, x_max, y_min, y_max):
     """
@@ -243,4 +255,11 @@ computeParasiteNodeLogicalPositions(parasiteTree, hostTree,R)
 print("These are the logical row values for each node in the parasite tree")
 for node in parasiteTree.allNodes:
     print(node.name,str(node.logicalRow))
+
+
+print("These are the actual xy coords for each node in the host tree on a 100x100 graph")
+computeHostNodeActualPositions(hostTree, 0, 100, 0, 100)    
+
+for node in hostTree.allNodes:
+    print(node.name, str(node.xcoord), str(node.ycoord))
 
