@@ -316,7 +316,11 @@ R.addEvent(Event5)
 
 hostTree.updateLeaves()
 parasiteTree.updateLeaves()
+computeHostNodeLogicalPositions(hostTree)
+computeParasiteNodeLogicalPositions(parasiteTree, hostTree,R)
 
+
+'''
 print("These are the leaves of the host tree:")
 for leaf in hostTree.leaves:
     print(leaf.name)
@@ -327,14 +331,12 @@ for leaf in parasiteTree.leaves:
 
 print()
 
-computeHostNodeLogicalPositions(hostTree)
 print("These are the logical row values for each node in the host tree")
 for node in hostTree.allNodes:
     print(node.name,str(node.logicalRow))
 
 print()
 
-computeParasiteNodeLogicalPositions(parasiteTree, hostTree,R)
 print("These are the logical row values for each node in the parasite tree")
 for node in parasiteTree.allNodes:
     print(node.name,str(node.logicalRow))
@@ -343,7 +345,7 @@ print()
 
 print("These are the actual xy coords for each node in the host tree on a 100x100 graph")
 print("assume that the actual canvas is 120x120, and that there is a margin")
-#computeHostNodeActualPositions(hostTree, 0, 100, 0, 100)    
+computeHostNodeActualPositions(hostTree, 0, 100, 0, 100)    
 
 for node in hostTree.allNodes:
     print(node.name, str(node.xcoord), str(node.ycoord))
@@ -353,7 +355,7 @@ print("These are the actual xy coords for each node in the parasite tree on a 12
 computeParasiteNodeActualPositions(parasiteTree, 0, 100, 0, 100)
 for node in parasiteTree.allNodes:
     print(node.name, str(node.xcoord), str(node.ycoord))
-
+'''
 computeHostNodeActualPositions(hostTree, 50, 950, 50, 750)
 computeParasiteNodeActualPositions(parasiteTree, 50, 950, 50, 750)
 
