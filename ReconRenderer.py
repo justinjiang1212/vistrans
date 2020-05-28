@@ -1,4 +1,6 @@
 import RenderClasses
+import tkinter as tk
+
 def computeHostNodeLogicalPositions(host_tree):
     """ 
     Sets the logicalRow and logicalCol values of each Node in host_tree.
@@ -125,6 +127,31 @@ def computeParasiteNodeActualPositions(parasite_tree, x_min, x_max, y_min, y_max
         node.ycoord = (node.logicalRow * y_unit)+ tree_offset
     
     
+def renderHostTree_tkiner(host_tree):
+    """
+    Renders the host tree using the drawing commands.
+    :param host_tree:  A Tree object with xcoord, ycoords already established for every
+        Node in that tree.
+    :return:  None
+    """
+
+    window = tk.Tk()
+    window.title("Host Tree")
+
+    frame = tk.Frame(window)
+    frame.pack()
+
+    canvas = tk.Canvas(frame, width = 505, height = 505)
+    canvas.pack()
+
+    
+    for node in host_tree.allNodes:
+        canvas.create_oval(node.xcoord, node.ycoord, node.xcoord+5, node.ycoord+5)
+
+    canvas.pack()
+    window.mainloop()
+
+
 
 
 def renderHostTree(host_tree):
@@ -284,3 +311,4 @@ computeParasiteNodeActualPositions(parasiteTree, 0, 100, 0, 100)
 for node in parasiteTree.allNodes:
     print(node.name, str(node.xcoord), str(node.ycoord))
 
+computeHostNodeActualPositions(hostTree, 5, 500, 5, 500)
