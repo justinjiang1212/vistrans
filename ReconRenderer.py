@@ -7,6 +7,9 @@ TREE_OFFSET = [20, 30]
 PARASITE_TREE_OFFSET = 15
 HOST_TREE_COLOR = 'green'
 PARASITE_TREE_COLOR = 'red'
+WINDOW_WIDTH = 1000
+WINDOW_HEIGHT = 1000
+WINDOW_NAME = "reconciliation"
 
 
 def computeHostNodeLogicalPositions(host_tree):
@@ -143,25 +146,38 @@ def computeParasiteNodeActualPositions(parasite_tree, x_min, x_max, y_min, y_max
             node.ycoord = node.logicalRow * y_unit - tree_offset + y_offset
         
 
+def render_trees(host_tree, parasite_tree, recon_map):
+    "Wrapper function that calls renderHostTree and renderParasiteTree"
+    window = tk.Tk()
+    window.title(WINDOW_NAME)
+
+    frame = tk.Frame(window)
+    frame.pack()
+
+    canvas = tk.Canvas(frame, width = WINDOW_WIDTH, height = WINDOW_HEIGHT)
+    canvas.pack()
+
+    renderHostTree_tkinter(hostTree, canvas)
+
+    renderParasiteTree(parasiteTree, hostTree, R, canvas)
+
+
+
+    canvas.pack()
+    window.mainloop()
+
+
+
+
+#     
     
-    
-def renderHostTree_tkinter(host_tree):
+def renderHostTree_tkinter(host_tree, canvas):
     """
     Renders the host tree using the drawing commands.
     :param host_tree:  A Tree object with xcoord, ycoords already established for every
         Node in that tree.
     :return:  None
     """
-    
-    window = tk.Tk()
-    window.title("Host Tree")
-
-    frame = tk.Frame(window)
-    frame.pack()
-
-    canvas = tk.Canvas(frame, width = 1000, height = 1000)
-    canvas.pack()
-
     #draw nodes
     for node in host_tree.allNodes:
         canvas.create_oval(node.xcoord - NODE_RADIUS, node.ycoord - NODE_RADIUS, node.xcoord + NODE_RADIUS, node.ycoord + NODE_RADIUS, fill=HOST_TREE_COLOR)
@@ -172,12 +188,7 @@ def renderHostTree_tkinter(host_tree):
     canvas.create_line(host_tree.rootNode.xcoord, host_tree.rootNode.ycoord, 0, host_tree.rootNode.ycoord, fill=HOST_TREE_COLOR)
 
     #draw parasite tree
-    renderParasiteTree(parasiteTree, hostTree, R, canvas) 
-
-    canvas.pack()
-    window.mainloop()
-
-
+     
 
 def renderHostTree_tkinter_helper(node, canvas):
     
@@ -359,5 +370,6 @@ for node in parasiteTree.allNodes:
 computeHostNodeActualPositions(hostTree, 50, 950, 50, 750)
 computeParasiteNodeActualPositions(parasiteTree, 50, 950, 50, 750)
 
-renderHostTree_tkinter(hostTree)                 
+
+render_trees(hostTree, parasiteTree, R)      
                                                                                                                                     
