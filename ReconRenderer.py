@@ -159,7 +159,7 @@ def render_trees(host_tree, parasite_tree, recon_map):
 
     renderHostTree_tkinter(hostTree, canvas)
 
-    renderParasiteTree(parasiteTree, hostTree, R, canvas)
+    renderParasiteTree(parasiteTree, hostTree, recon_map, canvas)
 
 
 
@@ -187,7 +187,6 @@ def renderHostTree_tkinter(host_tree, canvas):
     #draw root handle
     canvas.create_line(host_tree.rootNode.xcoord, host_tree.rootNode.ycoord, 0, host_tree.rootNode.ycoord, fill=HOST_TREE_COLOR)
 
-    #draw parasite tree
      
 
 def renderHostTree_tkinter_helper(node, canvas):
@@ -223,10 +222,25 @@ def renderParasiteTree(parasite_tree, host_tree, recon_map, canvas):
     :return:  None
     """
 
+    #Draw Nodes and Arrows
     for node in parasite_tree.allNodes:
         canvas.create_oval(node.xcoord - NODE_RADIUS, node.ycoord - NODE_RADIUS, node.xcoord + NODE_RADIUS, node.ycoord + NODE_RADIUS, fill=PARASITE_TREE_COLOR)
+        if node.parent:
+            if recon_map.getMap()[node.parent.name]:
+                if recon_map.getEvent(node.parent.name).eventType == RenderClasses.EventType.TRANSFER and not(node.parent.ycoord == node.ycoord):
+                    up = True
+                    if(node.parent.ycoord < node.ycoord):
+                        up = False
+                    create_triangle(node.parent.xcoord, (node.parent.ycoord + node.ycoord)/2, PARASITE_TREE_COLOR, canvas, up)
 
-    
+
+    #Draw lines
+    renderParasiteTree_helper(parasite_tree.rootNode, canvas)
+
+
+    #draw pRoot handle
+    canvas.create_line(parasite_tree.rootNode.xcoord, parasite_tree.rootNode.ycoord, parasite_tree.rootNode.xcoord - 30, parasite_tree.rootNode.ycoord, fill=PARASITE_TREE_COLOR)
+
     ### Hint:  I think that it's easiest to render backwards, starting at the leaves.  
     ### For each parasite node, find
     ### it's parent.  Then, draw the path from the parent node to the current parasite node.
@@ -234,6 +248,35 @@ def renderParasiteTree(parasite_tree, host_tree, recon_map, canvas):
     ### draw the edges of the parasite tree and, in particular, to draw the losses correctly.
 
 
+def renderParasiteTree_helper(node, canvas):
+    
+    #draw node name
+    if node.is_leaf:
+        canvas.create_text(node.xcoord+20,node.ycoord, text = node.name, fill=PARASITE_TREE_COLOR)
+    else:
+        #draw to left child
+        canvas.create_line(node.xcoord, node.ycoord , node.xcoord , node.leftChild.ycoord, fill=PARASITE_TREE_COLOR)
+        canvas.create_line(node.xcoord, node.leftChild.ycoord , node.leftChild.xcoord , node.leftChild.ycoord, fill=PARASITE_TREE_COLOR)
+
+        #draw to right child
+        canvas.create_line(node.xcoord, node.ycoord , node.xcoord , node.rightChild.ycoord, fill=PARASITE_TREE_COLOR)
+        canvas.create_line(node.xcoord, node.rightChild.ycoord , node.rightChild.xcoord , node.rightChild.ycoord, fill=PARASITE_TREE_COLOR)
+
+        renderParasiteTree_helper(node.leftChild,canvas)
+        renderParasiteTree_helper(node.rightChild,canvas)
+
+
+
+def create_triangle(x_pos, y_pos, color, canvas, up=True):
+    '''Draws a triangle at desired positon'''
+
+    n = 10
+    if up:
+        points = [x_pos, y_pos - n, x_pos - n, y_pos + n, x_pos + n, y_pos + n]
+    else:
+        points = [x_pos, y_pos + n, x_pos - n, y_pos - n, x_pos + n, y_pos - n]
+
+    canvas.create_polygon(points, fill=color, width=20)
 
 ### Host Tree
 root = RenderClasses.Node("root")
