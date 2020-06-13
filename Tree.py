@@ -28,6 +28,19 @@ class Node:
 
     def __repr__(self):
         return str(self.name)
+
+    def get_layout(self):
+        row = self.layout.row
+        col = self.layout.col
+        x = self.layout.x
+        y = self.layout.y
+        return row, col, x, y
+
+    def set_layout(self, row=None, col=None, x=None, y=None):
+        self.layout.row = row if row else self.layout.row
+        self.layout.col = col if col else self.layout.col
+        self.layout.x = x if x else self.layout.x
+        self.layout.y = y if y else self.layout.y
     
 class NodeLayout:
     def __init__(self):
