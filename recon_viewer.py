@@ -76,14 +76,10 @@ def render_parasite_helper(fig, node, recon, host_lookup, show_internal_labels =
     # which we need here.
     host_node = host_lookup[host_name]
 
-    host_row = host_node.layout.row
-    host_col = host_node.layout.col
-    host_x = host_node.layout.x
-    host_y = host_node.layout.y
-    node.layout.row = host_row
-    node.layout.x = node.layout.col
-    node.layout.y = host_y + VERTICAL_OFFSET
+    host_row, host_col, host_x, host_y = host_node.get_layout()
+    node.set_layout(row=host_row, x=node.layout.col, y=host_y + VERTICAL_OFFSET)
     color = event_color(event)
+
     if event.event_type is EventType.COSPECIATION: 
         node.layout.x += COSPECIATION_OFFSET
     point = (node.layout.x, node.layout.y)
