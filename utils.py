@@ -1,62 +1,71 @@
-# utils.py
-# Utilities related to conversion between data types
+"""
+utils.py
+Utilities related to conversion between data types
+"""
 
-from recon import MappingNode, ReconGraph, Reconciliation, EventType
-from recon import Cospeciation, Duplication, Transfer, Loss, TipTip
 from typing import Dict, Tuple, List
-import Tree
-
-from Tree import NodeLayout
-from Tree import TreeType
+from recon import MappingNode, ReconGraph, Reconciliation
+from recon import Cospeciation, Duplication, Transfer, Loss, TipTip
+import tree
+from tree import NodeLayout
+from tree import TreeType
 
 __all__ = ['dict_to_tree', 'dict_to_reconciliation', 'build_trees_with_temporal_order']
 
 # Master utility function coverts from dictionaries to objects
 
 def convert_to_objects(host_dict, parasite_dict, recon_dict):
+    """
+    :param host_dict - dictionary representation of host tree
+    :param parasite_dict - dictionary representation of parasite tree
+    :param recon_dict - dictionary representation of reconciliation
+    :return - corresondoing host_tree and parasite_tree Tree objects
+        and recon Reconciliation object
+    """
     host_tree, parasite_tree = build_trees_with_temporal_order(host_dict, parasite_dict, recon_dict)
     recon = dict_to_reconciliation(recon_dict)
     return host_tree, parasite_tree, recon
 
 # Tree utilities
 
-# Edge-based format is the primary format used by eMPRess algorithms.  This is the format that newickFormatReader.py
-# constructs from a .newick input file.
-# This format comprises a dictionary in which each key is either the string "hTop" ("pTop") for the edge corresponding to 
-# the handl of a host (parasite) tree or an edge tuple of the form (v1, v2) where v1 and v2 are strings denoting the 
-# name of the top and bottom vertices of that edge.  Values are 4-tuples of the form (v1, v2, edge1, edge2) where 
-# edge1 and edge2 are the edge tuples for the branches emanating from (v1, v2).  If the branch terminates at a leaf
+# Edge-based format is the primary format used by eMPRess algorithms.
+# This format comprises a dictionary in which each key is either the string
+# "hTop" ("pTop") for the edge corresponding to the handle of a host (parasite) tree
+# or an edge tuple of the form (v1, v2) where v1 and v2 are strings denoting the
+# name of the top and bottom vertices of that edge.  Values are 4-tuples of the form
+# (v1, v2, edge1, edge2) where edge1 and edge2 are the edge tuples for the
+# branches emanating from (v1, v2).  If the branch terminates at a leaf
 # then edge1 and edge2 are both None.
 # Here is an example of the host tree for the heliconius.newick file:
 
-host = {'hTop': ('Top', 'm1', ('m1', 'm2'), ('m1', 'm8')), 
-        ('m1', 'm2'): ('m1', 'm2', ('m2', 'm3'), ('m2', 'm6')), 
-        ('m2', 'm3'): ('m2', 'm3', ('m3', 'm4'), ('m3', 'm5')), 
-        ('m3', 'm4'): ('m3', 'm4', ('m4', 'aglaope_EastPE'), ('m4', 'amaryllis_EastPE')), 
-        ('m4', 'aglaope_EastPE'): ('m4', 'aglaope_EastPE', None, None), 
-        ('m4', 'amaryllis_EastPE'): ('m4', 'amaryllis_EastPE', None, None), 
+host = {'hTop': ('Top', 'm1', ('m1', 'm2'), ('m1', 'm8')),
+        ('m1', 'm2'): ('m1', 'm2', ('m2', 'm3'), ('m2', 'm6')),
+        ('m2', 'm3'): ('m2', 'm3', ('m3', 'm4'), ('m3', 'm5')),
+        ('m3', 'm4'): ('m3', 'm4', ('m4', 'aglaope_EastPE'), ('m4', 'amaryllis_EastPE')),
+        ('m4', 'aglaope_EastPE'): ('m4', 'aglaope_EastPE', None, None),
+        ('m4', 'amaryllis_EastPE'): ('m4', 'amaryllis_EastPE', None, None),
         ('m3', 'm5'): ('m3', 'm5', ('m5', 'ecuadoriensis_EastE'), ('m5', 'malleti_EastE')), 
-        ('m5', 'ecuadoriensis_EastE'): ('m5', 'ecuadoriensis_EastE', None, None), 
-        ('m5', 'malleti_EastE'): ('m5', 'malleti_EastE', None, None), 
-        ('m2', 'm6'): ('m2', 'm6', ('m6', 'm7'), ('m6', 'melpomene_EastT')), 
+        ('m5', 'ecuadoriensis_EastE'): ('m5', 'ecuadoriensis_EastE', None, None),
+        ('m5', 'malleti_EastE'): ('m5', 'malleti_EastE', None, None),
+        ('m2', 'm6'): ('m2', 'm6', ('m6', 'm7'), ('m6', 'melpomene_EastT')),
         ('m6', 'm7'): ('m6', 'm7', ('m7', 'thelxiopeia_EastFG'), ('m7', 'melpomene_EastFG')), 
-        ('m7', 'thelxiopeia_EastFG'): ('m7', 'thelxiopeia_EastFG', None, None), 
-        ('m7', 'melpomene_EastFG'): ('m7', 'melpomene_EastFG', None, None), 
-        ('m6', 'melpomene_EastT'): ('m6', 'melpomene_EastT', None, None), 
-        ('m1', 'm8'): ('m1', 'm8', ('m8', 'm9'), ('m8', 'm11')), 
-        ('m8', 'm9'): ('m8', 'm9', ('m9', 'm10'), ('m9', 'rosina_WestPA')), 
-        ('m9', 'm10'): ('m9', 'm10', ('m10', 'melpomene_WestPA'), 
-        ('m10', 'rosina_WestCR')), ('m10', 'melpomene_WestPA'): ('m10', 'melpomene_WestPA', None, None), 
-        ('m10', 'rosina_WestCR'): ('m10', 'rosina_WestCR', None, None), 
-        ('m9', 'rosina_WestPA'): ('m9', 'rosina_WestPA', None, None), 
-        ('m8', 'm11'): ('m8', 'm11', ('m11', 'melpomene_EastC'), ('m11', 'cythera_WestE')), 
-        ('m11', 'melpomene_EastC'): ('m11', 'melpomene_EastC', None, None), 
+        ('m7', 'thelxiopeia_EastFG'): ('m7', 'thelxiopeia_EastFG', None, None),
+        ('m7', 'melpomene_EastFG'): ('m7', 'melpomene_EastFG', None, None),
+        ('m6', 'melpomene_EastT'): ('m6', 'melpomene_EastT', None, None),
+        ('m1', 'm8'): ('m1', 'm8', ('m8', 'm9'), ('m8', 'm11')),
+        ('m8', 'm9'): ('m8', 'm9', ('m9', 'm10'), ('m9', 'rosina_WestPA')),
+        ('m9', 'm10'): ('m9', 'm10', ('m10', 'melpomene_WestPA'),
+        ('m10', 'rosina_WestCR')), ('m10', 'melpomene_WestPA'): ('m10', 'melpomene_WestPA', None, None),
+        ('m10', 'rosina_WestCR'): ('m10', 'rosina_WestCR', None, None),
+        ('m9', 'rosina_WestPA'): ('m9', 'rosina_WestPA', None, None),
+        ('m8', 'm11'): ('m8', 'm11', ('m11', 'melpomene_EastC'), ('m11', 'cythera_WestE')),
+        ('m11', 'melpomene_EastC'): ('m11', 'melpomene_EastC', None, None),
         ('m11', 'cythera_WestE'): ('m11', 'cythera_WestE', None, None)}
 
 
 def tester():
     """ Tester for dict_to_tree """
-    host_converted = dict_to_tree(host, Tree.TreeType.HOST)
+    host_converted = dict_to_tree(host, tree.TreeType.HOST)
     print("Leaves: ", host_converted.leaf_list)
     print()
     print("All nodes in postorder: ", host_converted.postorder_list)
@@ -64,13 +73,14 @@ def tester():
 def dict_to_tree(tree_dict, tree_type):
     """
     :param tree_dict: An edge-based representation of a tree as in the example above.
-    :param tree_type: Tree.TreeType.{HOST, PARASITE} indicating the type of the tree.  This is used to 
-        determine if the handle of the tree is "hTop" (host) or "pTop" (parasite)
-    :return: A representation of the tree in Tree format (see Tree.py)
+    :param tree_type: tree.TreeType.{HOST, PARASITE} indicating the type of the tree.
+        This is used to determine if the handle of the tree is "hTop" (host) or
+        "pTop" (parasite)
+    :return: A representation of the tree in Tree format (see tree.py)
     """
 
-    root = "hTop" if tree_type == Tree.TreeType.HOST else "pTop"
-    output_tree = Tree.Tree()
+    root = "hTop" if tree_type == tree.TreeType.HOST else "pTop"
+    output_tree = tree.Tree()
     output_tree.tree_type = tree_type
     output_tree.root_node = _dict_to_tree_helper(tree_dict, root)
     return output_tree
@@ -79,13 +89,11 @@ def _dict_to_tree_helper(tree_dict, root_edge):
     """
     Helper function for dict_to_tree.
     """
-
     root_name = tree_dict[root_edge][1]
-    new_node = Tree.Node(root_name)
-
-    left_edge = tree_dict[root_edge][2] 
-    right_edge = tree_dict[root_edge][3] 
-
+    new_node = tree.Node(root_name)
+    left_edge = tree_dict[root_edge][2]
+    right_edge = tree_dict[root_edge][3]
+    
     if left_edge is None and right_edge is None:
         return new_node
     else:
@@ -214,9 +222,10 @@ def build_trees_with_temporal_order(host_dict, parasite_dict, recon_dict):
     :param host_dict: host tree dictionary
     :param parasite_dict: parasite tree dictionary
     :param reconciliation: reconciliation dictionary
-    :return: a Tree object of type HOST and a Tree object of type PARASITE. If we can find a valid temporal
-             ordering for the nodes, then the nodes in both trees will have their
-             layout field populated that contains the temporal order information
+    :return: a Tree object of type HOST and a Tree object of type PARASITE.
+             If there exists a temporal ordering of the nodes then
+             the nodes in both trees will have their layout field populated
+             that contains the temporal order information
     """
     # find the temporal order for host nodes and parasite nodes
     temporal_graph = build_temporal_graph(host_dict, parasite_dict, recon_dict)
@@ -225,16 +234,20 @@ def build_trees_with_temporal_order(host_dict, parasite_dict, recon_dict):
     host_tree_object = dict_to_tree(host_dict, TreeType.HOST)
     parasite_tree_object = dict_to_tree(parasite_dict, TreeType.PARASITE)
 
-    # if there is a valid temporal ordering, we populate the layout with the order corresponding to the node
-    if ordering_dict != None:
-        # calculate the temporal order for leaves, which all have the largest order
+    # if there is a valid temporal ordering, we populate the layout with the 
+    # order corresponding to the node
+    if not ordering_dict is None:
+        # calculate the temporal order for leaves, which all have the 
+        # largest order
         max_order = 1
         for node in ordering_dict:
             if max_order < ordering_dict[node]:
                 max_order = ordering_dict[node]
         leaf_order = max_order + 1
-        populate_nodes_with_order(host_tree_object.root_node, TreeType.HOST, ordering_dict, leaf_order)
-        populate_nodes_with_order(parasite_tree_object.root_node, TreeType.PARASITE, ordering_dict, leaf_order)
+        populate_nodes_with_order(host_tree_object.root_node, TreeType.HOST, 
+                                  ordering_dict, leaf_order)
+        populate_nodes_with_order(parasite_tree_object.root_node,
+                                  TreeType.PARASITE, ordering_dict, leaf_order)
 
     return host_tree_object, parasite_tree_object
 
@@ -329,7 +342,8 @@ def build_temporal_graph(host_dict, parasite_dict, recon_dict):
         # if the node_mapping is not a leaf_mapping, we add the first relation
         if event_type != 'C':
             temporal_graph[(parasite, TreeType.PARASITE)].append((host, TreeType.HOST))
-        # if the node_mapping is not a mapping onto the root of host tree, we add the second relation
+        # if the node_mapping is not a mapping onto the root of host tree, we add the 
+        # second relation
         if host_parent != 'Top':
             temporal_graph[(host_parent, TreeType.HOST)].append((parasite, TreeType.PARASITE))
         
@@ -339,9 +353,11 @@ def build_temporal_graph(host_dict, parasite_dict, recon_dict):
             right_child_mapping = event_tuple[2]
             right_child_parasite, right_child_host = right_child_mapping
             # since a transfer event is horizontal, we have these two implied relations
-            temporal_graph[(parent[right_child_host], TreeType.HOST)].append((parasite, TreeType.PARASITE))
+            temporal_graph[(parent[right_child_host],
+                            TreeType.HOST)].append((parasite, TreeType.PARASITE))
             # the second relation is only added if the right child mapping is not a leaf mapping
-            if right_child_mapping not in recon_dict or recon_dict[right_child_mapping][0][0]!='C':
+            if right_child_mapping not in recon_dict or \
+                recon_dict[right_child_mapping][0][0] != 'C':
                 temporal_graph[(right_child_parasite, TreeType.PARASITE)].append((host, TreeType.HOST))
 
     for node_tuple in temporal_graph:
@@ -355,7 +371,8 @@ def topological_order(temporal_graph):
     """
     :param temporal graph: as described in the return type of build_temporal_graph
     :return: A dictionary in which a key is a node tuple (name, type) as described
-        in build_temporal_graph and the value is a positive integer representing its topological ordering.
+        in build_temporal_graph and the value is a positive integer representing its 
+        topological ordering.
         The ordering numbers are consecutive values beginning at 1.
         If the graph has a cycle and the topological ordering therefore fails, this
         function returns None.
@@ -363,63 +380,71 @@ def topological_order(temporal_graph):
     # the ordering of nodes starts at 1
     next_order = 1
     unvisited_nodes = set(temporal_graph.keys())
-    # the visitng_nodes is used to detect cycles. If the visiting_nodes add an element that is already
+    # the visitng_nodes is used to detect cycles. If the visiting_nodes add an 
+    # element that is already
     # in the list, then we have found a cycle
     visiting_nodes = set()
     ordering_dict = {}
     while unvisited_nodes:
         start_node = unvisited_nodes.pop()
-        has_cycle, next_order = topological_order_helper(start_node, next_order, visiting_nodes,
-                               unvisited_nodes, temporal_graph, ordering_dict)
-        if has_cycle: return None
+        has_cycle, next_order = \
+                topological_order_helper(start_node, next_order, visiting_nodes,
+                                         unvisited_nodes, temporal_graph, ordering_dict)
+        if has_cycle: 
+            return None
     # reverse the ordering of the nodes
     for node_tuple in ordering_dict:
         ordering_dict[node_tuple] = next_order - ordering_dict[node_tuple]
     return ordering_dict 
            
-def topological_order_helper(start_node, start_order, visiting_nodes, unvisited_nodes, temporal_graph, ordering_dict):
+def topological_order_helper(start_node, start_order, visiting_nodes, unvisited_nodes, \
+    temporal_graph, ordering_dict):
     """
     :param start_node: is the starting node to explore the temporal_graph
     :param start_order: is the order we start to label the nodes with
     :param visiting_nodes: are nodes that are on the same path and are currently being explored
     :param unvisited_nodes: are nodes in temporal graph that have not been visited
     :param temporal graph: as described in the return type of build_temporal_graph
-    :param ordering_dict: is the dictionary that contains labeled node tuples and their ordering as described
-            in topological_order
-    :return: a Boolean value that denotes whether the part of temporal graph reachable from start_node
-             contains a cycle
-    :return: the start order to be used by the remaing nodes of temporal graph that have not been labeled
+    :param ordering_dict: is the dictionary that contains labeled node tuples and 
+        their ordering as described in topological_order
+    :return: a Boolean value that denotes whether the part of temporal graph reachable 
+        from start_node contains a cycle
+    :return: the start order to be used by the remaing nodes of temporal graph that 
+        have not been labeled
     """
     next_order = start_order
     is_leaf = start_node not in temporal_graph
     if is_leaf:
         return False, next_order
-    else:
-        has_cycle = start_node in visiting_nodes
-        if has_cycle:
+    has_cycle = start_node in visiting_nodes
+    if has_cycle:
+        return True, next_order
+    visiting_nodes.add(start_node)
+    child_nodes = temporal_graph[start_node]
+    for child_node in child_nodes:
+        # if the child_node is already labeled, we skip it
+        if child_node in ordering_dict:
+            continue
+        if child_node in unvisited_nodes:
+            unvisited_nodes.remove(child_node)
+        has_cycle_child, next_order = \
+            topological_order_helper(child_node, next_order, visiting_nodes, 
+                                     unvisited_nodes, temporal_graph, ordering_dict)
+        # if we find a cycle, we stop the process
+        if has_cycle_child:
             return True, next_order
-        visiting_nodes.add(start_node)
-        child_nodes = temporal_graph[start_node]
-        for child_node in child_nodes:
-            # if the child_node is already labeled, we skip it
-            if child_node in ordering_dict:
-                continue
-            if child_node in unvisited_nodes:
-                unvisited_nodes.remove(child_node)
-            has_cycle_child, next_order = topological_order_helper(child_node, next_order,  visiting_nodes,
-                                   unvisited_nodes, temporal_graph, ordering_dict)
-            # if we find a cycle, we stop the process
-            if has_cycle_child: return True, next_order
-        # if children are all labeled, we can label the start_node
-        visiting_nodes.remove(start_node)
-        ordering_dict[start_node] = next_order
-        return False, next_order+1
+    # if children are all labeled, we can label the start_node
+    visiting_nodes.remove(start_node)
+    ordering_dict[start_node] = next_order
+    return False, next_order+1
 
 def populate_nodes_with_order(tree_node, tree_type, ordering_dict, leaf_order):
     """
-    :param tree_node: the root node of the subtree we want to populate the temporal order information
+    :param tree_node: the root node of the subtree we want to populate the temporal 
+        order information
     :param tree_type: the type of the tree
-    :param ordering_dict: a dictionary that maps node tuples to their temporal order as described in topological_order
+    :param ordering_dict: a dictionary that maps node tuples to their temporal order as 
+        described in topological_order
     :param leaf_order: the temporal order we should assign to the leaves of the tree
     """
     layout = NodeLayout()
@@ -469,6 +494,4 @@ def _is_leaf_edge(edge_four_tuple):
     :return: True if child_edge1 = child_edge2 = None.
         This signifies that this edge terminates at a leaf. 
     """
-    return edge_four_tuple[3] == None
-
-
+    return edge_four_tuple[3] is None
