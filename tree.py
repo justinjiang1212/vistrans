@@ -34,6 +34,20 @@ class Node:
     def __repr__(self):
         return str(self.name)
 
+
+    def get_layout(self):
+        """ returns the four values listed in NodeLayout"""
+        layout = self.layout
+        return layout.row, layout.col, layout.x, layout.y
+
+    def set_layout(self, row=None, col=None, x=None, y=None):
+        """Sets the layout"""
+        layout = self.layout
+        layout.row = row if row else layout.row
+        layout.col = col if col else layout.col
+        layout.x = x if x else layout.x
+        layout.y = y if y else layout.y
+
 class NodeLayout:
     """ Defines node layout attributes for rendering """
     def __init__(self):

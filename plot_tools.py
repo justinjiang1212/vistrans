@@ -31,13 +31,13 @@ class FigureWrapper:
         self.axis.axis("off")
         self.axis.set_title(title)
 
-    def line(self, point_1, point_2, col=BLACK):
+    def line(self, point_1, point_2, col=BLACK, linestyle='-', marker=None):
         """
         Draw line from point p1 to p2
         """
         x_1, y_1 = point_1
         x_2, y_2 = point_2
-        self.axis.plot([x_1, x_2], [y_1, y_2], color=col, linewidth=LINEWIDTH)
+        self.axis.plot([x_1, x_2], [y_1, y_2], color=col, linewidth=LINEWIDTH, linestyle=linestyle, marker=marker)
     
     def dot(self, point, col=BLACK):
         """
@@ -65,3 +65,12 @@ class FigureWrapper:
         Save figure to file
         """
         self.fig.savefig(filename)
+    
+    def half_arrow(self, point_1, point_2, col=BLACK):
+        """
+        Draw line from point p1 to p2
+        """
+        print(col)
+        x_1, y_1 = point_1
+        x_2, y_2 = point_2
+        self.axis.arrow(x_1, y_1, 0, abs(y_2-y_1)/2, head_width=0.2, head_length=0.2, color=col, linewidth=LINEWIDTH)

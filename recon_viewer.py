@@ -82,21 +82,24 @@ def render_parasite_helper(fig, node, recon, host_lookup, show_internal_labels, 
     # host_col = host_node.layout.col
     # host_x = host_node.layout.x
     host_y = host_node.layout.y
-    node.layout.row = host_row
-    node.layout.x = node.layout.col
-    node.layout.y = host_y + VERTICAL_OFFSET
+    node.set_layout(row=host_row, x=node.layout.col, y=host_y + VERTICAL_OFFSET)
+    
     if event.event_type is EventType.COSPECIATION:
         node.layout.x += COSPECIATION_OFFSET
     # Render parasite node and recurse if not a leaf
+    
     if node.is_leaf:
         render_parasite_node(fig, node, event)
         return
+
     render_parasite_helper(fig, node.left_node, recon, host_lookup, \
         show_internal_labels, show_freq)
     render_parasite_helper(fig, node.right_node, recon, host_lookup, \
         show_internal_labels, show_freq)
+    
     render_parasite_node(fig, node, event, show_internal_labels, show_freq)
-    render_parasite_branches(fig, node)
+
+    render_parasite_branches(fig, node, recon)
 
 def render_parasite_node(fig, node, event, show_internal_labels=False, show_freq=False):
     """
@@ -104,20 +107,67 @@ def render_parasite_node(fig, node, event, show_internal_labels=False, show_freq
     """
     node_xy = (node.layout.x, node.layout.y)
     render_color = event_color(event)
+    
     fig.dot(node_xy, render_color)
     fig.text(node_xy, node.name, render_color)
-    if show_internal_labels:
-        fig.text(node_xy, node.name, render_color)
+
     if show_freq:
         fig.text(node_xy, event.freq, render_color)
 
-def render_parasite_branches(fig, node):
+def render_parasite_branches(fig, node, recon):
     """ Very basic branch drawing """
     node_xy = (node.layout.x, node.layout.y)
+
+
     left_xy = (node.left_node.layout.x, node.left_node.layout.y)
     right_xy = (node.right_node.layout.x, node.right_node.layout.y)
-    fig.line(node_xy, left_xy, PARASITE_EDGE_COLOR)
-    fig.line(node_xy, right_xy, PARASITE_EDGE_COLOR)
+
+    mapping_node = recon.mapping_of(node.name)
+    event = recon.event_of(mapping_node)
+    print(node.name)
+    if event.event_type is EventType.COSPECIATION:
+        
+        #Draw left node
+        mid_xy = (node_xy[0], left_xy[1])
+        fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+        fig.line(mid_xy, left_xy, PARASITE_EDGE_COLOR)
+
+        #Draw Right node
+        mid_xy = (node_xy[0], right_xy[1])
+        fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+        fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
+
+    
+    if event.event_type is EventType.DUPLICATION:  
+        print(1)          
+        print(event)
+
+    if event.event_type is EventType.TRANSFER:
+        #Draw left node
+        mid_xy = (node_xy[0], left_xy[1])
+        fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+        fig.line(mid_xy, left_xy, PARASITE_EDGE_COLOR)
+
+        #Draw right node, which is transfered
+        mid_xy = (node_xy[0], right_xy[1])
+        fig.half_arrow(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+
+        fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+        fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
+                
+
+        
+
+    if event.event_type is EventType.LOSS: 
+        print(3)
+        print(event)
+    
+    #if event
+        
+
+
+    #fig.line(node_xy, left_xy, PARASITE_EDGE_COLOR)
+    #fig.line(node_xy, right_xy, PARASITE_EDGE_COLOR)
 
 def event_color(event):
     """ Return color for drawing event, depending on event type. """
