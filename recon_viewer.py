@@ -98,9 +98,8 @@ def render_parasite_helper(fig, node, recon, host_lookup, show_internal_labels, 
     render_parasite_helper(fig, node.right_node, recon, host_lookup, \
         show_internal_labels, show_freq)
     
-    render_parasite_node(fig, node, event, show_internal_labels, show_freq)
-
     render_parasite_branches(fig, node, recon)
+    render_parasite_node(fig, node, event, show_internal_labels, show_freq)
 
 def render_parasite_node(fig, node, event, show_internal_labels=False, show_freq=False):
     """
@@ -119,60 +118,57 @@ def render_parasite_branches(fig, node, recon):
     """ Very basic branch drawing """
     node_xy = (node.layout.x, node.layout.y)
 
-
     left_xy = (node.left_node.layout.x, node.left_node.layout.y)
     right_xy = (node.right_node.layout.x, node.right_node.layout.y)
 
     mapping_node = recon.mapping_of(node.name)
     event = recon.event_of(mapping_node)
-    print(node.name)
+
     if event.event_type is EventType.COSPECIATION:
+        render_cospeciation_branch(node_xy, left_xy, right_xy, fig)
         
-        #Draw left node
-        mid_xy = (node_xy[0], left_xy[1])
-        fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
-        fig.line(mid_xy, left_xy, PARASITE_EDGE_COLOR)
-
-        #Draw Right node
-        mid_xy = (node_xy[0], right_xy[1])
-        fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
-        fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
-
-    
-    if event.event_type is EventType.DUPLICATION:  
-        print(1)          
-        print(event)
+    if event.event_type is EventType.DUPLICATION:
+        pass
 
     if event.event_type is EventType.TRANSFER:
-        #Draw left node
-        mid_xy = (node_xy[0], left_xy[1])
-        fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
-        fig.line(mid_xy, left_xy, PARASITE_EDGE_COLOR)
-
-        #Draw right node, which is transfered
-        mid_xy = (node_xy[0], right_xy[1])
-        fig.half_arrow(node_xy, mid_xy, PARASITE_EDGE_COLOR)
-
-        fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
-        fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
+        render_transfer_branch(node_xy, left_xy, right_xy, fig)
                 
-
-        
-
     if event.event_type is EventType.LOSS: 
-        print(3)
-        print(event)
+        pass
 
 #TODO talk about how we want to draw the parasite handle, as well as what we need to give to the function
 def draw_parasite_handle(fig, proot):
     """ Draw edge leading to root of parasite tree. """
     #fig.line((0, proot.layout.y), (proot.layout.x, proot.layout.y), PARASITE_EDGE_COLOR)
-    
-        
+    pass
 
+def render_cospeciation_branch(node_xy, left_xy, right_xy, fig):
+    """
+    Renders the a cospeciation branch.
+    :param 
+    """
+    #Draw left node
+    mid_xy = (node_xy[0], left_xy[1])
+    fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+    fig.line(mid_xy, left_xy, PARASITE_EDGE_COLOR)
 
-    #fig.line(node_xy, left_xy, PARASITE_EDGE_COLOR)
-    #fig.line(node_xy, right_xy, PARASITE_EDGE_COLOR)
+    #Draw Right node
+    mid_xy = (node_xy[0], right_xy[1])
+    fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+    fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
+
+def render_transfer_branch(node_xy, left_xy, right_xy, fig):
+    #Draw left node
+    mid_xy = (node_xy[0], left_xy[1])
+    fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+    fig.line(mid_xy, left_xy, PARASITE_EDGE_COLOR)
+
+    #Draw right node, which is transfered
+    mid_xy = (node_xy[0], right_xy[1])
+    fig.half_arrow(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+
+    fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+    fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
 
 def event_color(event):
     """ Return color for drawing event, depending on event type. """
