@@ -123,6 +123,7 @@ def render_parasite_branches(fig, node, recon):
 
     mapping_node = recon.mapping_of(node.name)
     event = recon.event_of(mapping_node)
+    print(event)
 
     if event.event_type is EventType.COSPECIATION:
         render_cospeciation_branch(node_xy, left_xy, right_xy, fig)
@@ -139,7 +140,7 @@ def render_parasite_branches(fig, node, recon):
 #TODO talk about how we want to draw the parasite handle, as well as what we need to give to the function
 def draw_parasite_handle(fig, proot):
     """ Draw edge leading to root of parasite tree. """
-    #fig.line((0, proot.layout.y), (proot.layout.x, proot.layout.y), PARASITE_EDGE_COLOR)
+    fig.line((0, proot.layout.y), (proot.layout.x, proot.layout.y), PARASITE_EDGE_COLOR)
     pass
 
 def render_cospeciation_branch(node_xy, left_xy, right_xy, fig):
@@ -165,9 +166,10 @@ def render_transfer_branch(node_xy, left_xy, right_xy, fig):
 
     #Draw right node, which is transfered
     mid_xy = (node_xy[0], right_xy[1])
-    fig.half_arrow(node_xy, mid_xy, PARASITE_EDGE_COLOR)
 
+    fig.half_arrow(node_xy, mid_xy, PARASITE_EDGE_COLOR)
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+
     fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
 
 def event_color(event):

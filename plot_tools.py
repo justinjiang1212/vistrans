@@ -41,9 +41,6 @@ class FigureWrapper:
         x_2, y_2 = point_2
         self.axis.plot([x_1, x_2], [y_1, y_2], color=col, linewidth=LINEWIDTH, linestyle=linestyle, marker=marker, zorder=LINE_Z_ORDER)
 
-    def arrow(self, point_1, point_2, col=BLACK):
-        pass
-    
     def dot(self, point, col=BLACK):
         """
         Plot dot at point p
@@ -77,4 +74,4 @@ class FigureWrapper:
         """
         x_1, y_1 = point_1
         x_2, y_2 = point_2
-        self.axis.arrow(x_1, y_1, 0, abs(y_2-y_1)/2, head_width=0.2, head_length=0.2, color=col, linewidth=LINEWIDTH/2, shape='full')
+        self.axis.arrow(x_1, y_1, 0, abs(y_2-y_1)/2, head_width=0.15, head_length=0.15, color=col, linewidth=LINEWIDTH/2, shape='full', length_includes_head=True, zorder=LINE_Z_ORDER)
