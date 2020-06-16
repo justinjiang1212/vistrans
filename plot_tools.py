@@ -73,4 +73,4 @@ class FigureWrapper:
         print(col)
         x_1, y_1 = point_1
         x_2, y_2 = point_2
-        self.axis.arrow(x_1, y_1, 0, abs(y_2-y_1)/2, head_width=0.2, head_length=0.2, color=col, linewidth=LINEWIDTH)
+        self.axis.arrow(x_1, y_1, 0, abs(y_2-y_1)/2, head_width=0.2, head_length=0.2, color=col, linewidth=LINEWIDTH/2, shape='full')

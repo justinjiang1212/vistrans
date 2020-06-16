@@ -162,7 +162,6 @@ def render_parasite_branches(fig, node, recon):
         print(3)
         print(event)
     
-    #if event
         
 
 
