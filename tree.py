@@ -57,6 +57,8 @@ class NodeLayout:
         self.col = None         # float: logical position of this Node in rendering
         self.x = None           # int: x-coordinate for rendering
         self.y = None           # int: y-coordinate for rendering
+        self.v_track = 0        # int: track number for vertical host edges
+        self.h_track = 0        # int: track number for horizontal host edges
 
 
 class Tree:
