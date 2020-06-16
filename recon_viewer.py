@@ -57,6 +57,7 @@ def render_host_helper(fig, node, show_internal_labels):
 def render_parasite(fig, parasite_tree, recon, host_lookup, show_internal_labels, show_freq):
     """ Render the parasite tree. """
     root = parasite_tree.root_node
+    draw_parasite_handle(fig, root)
     render_parasite_helper(fig, root, recon, host_lookup, show_internal_labels, show_freq)
 
 def render_parasite_helper(fig, node, recon, host_lookup, show_internal_labels, show_freq):
@@ -161,6 +162,11 @@ def render_parasite_branches(fig, node, recon):
     if event.event_type is EventType.LOSS: 
         print(3)
         print(event)
+
+#TODO talk about how we want to draw the parasite handle, as well as what we need to give to the function
+def draw_parasite_handle(fig, proot):
+    """ Draw edge leading to root of parasite tree. """
+    #fig.line((0, proot.layout.y), (proot.layout.x, proot.layout.y), PARASITE_EDGE_COLOR)
     
         
 
