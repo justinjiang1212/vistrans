@@ -19,6 +19,8 @@ PURPLE = (0.5, 0, 0.5, 1)
 BLACK = (0, 0, 0, 1)
 GRAY = (0.5, 0.5, 0.5, 1)
 LINEWIDTH = 2
+LINE_Z_ORDER = 0
+DOT_Z_ORDER = 1
 FONTSIZE = 12
 
 class FigureWrapper:
@@ -37,14 +39,17 @@ class FigureWrapper:
         """
         x_1, y_1 = point_1
         x_2, y_2 = point_2
-        self.axis.plot([x_1, x_2], [y_1, y_2], color=col, linewidth=LINEWIDTH, linestyle=linestyle, marker=marker)
+        self.axis.plot([x_1, x_2], [y_1, y_2], color=col, linewidth=LINEWIDTH, linestyle=linestyle, marker=marker, zorder=LINE_Z_ORDER)
+
+    def arrow(self, point_1, point_2, col=BLACK):
+        pass
     
     def dot(self, point, col=BLACK):
         """
         Plot dot at point p
         """
         x, y = point
-        self.axis.plot(x, y, 'o', color=col)
+        self.axis.plot(x, y, 'o', color=col, zorder=DOT_Z_ORDER)
     
     def text(self, point, text, col=BLACK):
         """
@@ -70,7 +75,6 @@ class FigureWrapper:
         """
         Draw line from point p1 to p2
         """
-        print(col)
         x_1, y_1 = point_1
         x_2, y_2 = point_2
         self.axis.arrow(x_1, y_1, 0, abs(y_2-y_1)/2, head_width=0.2, head_length=0.2, color=col, linewidth=LINEWIDTH/2, shape='full')
