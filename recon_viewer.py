@@ -165,11 +165,18 @@ def render_transfer_branch(node_xy, left_xy, right_xy, fig):
     fig.line(mid_xy, left_xy, PARASITE_EDGE_COLOR)
 
     #Draw right node, which is transfered
-    mid_xy = (node_xy[0], right_xy[1])
+    mid_xy = (node_xy[0], right_xy[1])          #xy coords of midpoint
+    y_midpoint = abs(mid_xy[1]+ node_xy[1])/2   #value of midpoint between mid_xy and parent node
 
-    fig.half_arrow(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+    #determine if transfer is upwards or downwards, and draw trianle accordingly
+    is_upwards = True if y_midpoint < mid_xy[1] else False
+    if is_upwards:
+        fig.up_triangle((node_xy[0], y_midpoint), PARASITE_EDGE_COLOR)
+    else:
+        fig.down_triangle((node_xy[0], y_midpoint), PARASITE_EDGE_COLOR)
+
+    #draw branch to midpoint, then draw branch to child
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
-
     fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
 
 def event_color(event):
