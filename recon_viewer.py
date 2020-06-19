@@ -8,7 +8,7 @@ import utils
 import plot_tools
 from render_settings import LEAF_NODE_COLOR, COSPECIATION_NODE_COLOR, \
     DUPLICATION_NODE_COLOR, TRANSFER_NODE_COLOR, HOST_NODE_COLOR, HOST_EDGE_COLOR, \
-    PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET
+    PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET
 
 def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, show_freq=False):
     """ Renders a reconciliation using matplotlib
@@ -97,7 +97,7 @@ def render_parasite_helper(fig, node, recon, host_lookup, show_internal_labels, 
     render_parasite_helper(fig, node.right_node, recon, host_lookup, \
         show_internal_labels, show_freq)
     
-    render_parasite_branches(fig, node, recon)
+    render_parasite_branches(fig, node, recon, host_lookup)
     render_parasite_node(fig, node, event, show_internal_labels, show_freq)
 
 def render_parasite_node(fig, node, event, show_internal_labels=False, show_freq=False):
@@ -113,31 +113,34 @@ def render_parasite_node(fig, node, event, show_internal_labels=False, show_freq
     if show_freq:
         fig.text(node_xy, event.freq, render_color)
 
-def render_parasite_branches(fig, node, recon):
+def render_parasite_branches(fig, node, recon, host_lookup):
     """ Very basic branch drawing """
     node_xy = (node.layout.x, node.layout.y)
 
     left_xy = (node.left_node.layout.x, node.left_node.layout.y)
     right_xy = (node.right_node.layout.x, node.right_node.layout.y)
+    
 
     mapping_node = recon.mapping_of(node.name)
     event = recon.event_of(mapping_node)
+    
     print(event)
 
     if event.event_type is EventType.COSPECIATION:
-        render_cospeciation_branch(node_xy, left_xy, right_xy, fig)
+        render_cospeciation_branch(node_xy, left_xy, right_xy, fig, node)
         
     if event.event_type is EventType.DUPLICATION:
-        pass
+        render_duplication_branch(node_xy, mapping_node, host_lookup, fig)
+        
 
     if event.event_type is EventType.TRANSFER:
-        render_transfer_branch(node_xy, left_xy, right_xy, fig)
+        render_transfer_branch(node_xy, left_xy, right_xy, fig, node)
                 
     if event.event_type is EventType.LOSS: 
         pass
 
 
-def render_cospeciation_branch(node_xy, left_xy, right_xy, fig):
+def render_cospeciation_branch(node_xy, left_xy, right_xy, fig, node):
     """
     Renders the a cospeciation branch.
     :param 
@@ -145,6 +148,8 @@ def render_cospeciation_branch(node_xy, left_xy, right_xy, fig):
     #Draw left node
     mid_xy = (node_xy[0], left_xy[1])
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+
+
     fig.line(mid_xy, left_xy, PARASITE_EDGE_COLOR)
 
     #Draw Right node
@@ -152,7 +157,7 @@ def render_cospeciation_branch(node_xy, left_xy, right_xy, fig):
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
     fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
 
-def render_transfer_branch(node_xy, left_xy, right_xy, fig):
+def render_transfer_branch(node_xy, left_xy, right_xy, fig, node):
     #Draw left node
     mid_xy = (node_xy[0], left_xy[1])
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
@@ -172,6 +177,40 @@ def render_transfer_branch(node_xy, left_xy, right_xy, fig):
     #draw branch to midpoint, then draw branch to child
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
     fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
+
+
+def render_duplication_branch(node_xy, mapping_node, host_lookup, fig):
+    host_node = host_lookup[mapping_node.host]
+    
+    #using the coords of the host node, figure out where associated parasite node is
+    dup_xy = (host_node.layout.x - (VERTICAL_OFFSET*2), host_node.layout.y + VERTICAL_OFFSET)
+
+
+
+    #draw first track
+    h_track = host_node.layout.h_track
+    track_offset = h_track * TRACK_OFFSET           #computes an offset based on how many parasite edges are on host edge
+
+    mid_xy = (node_xy[0], dup_xy[1]+ track_offset)
+
+    fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+    fig.line(mid_xy, (dup_xy[0], dup_xy[1] + track_offset), PARASITE_EDGE_COLOR)
+
+    host_node.layout.h_track += 1                   #update the counter for keeping track of how many edges are on host
+
+    
+
+    #draw second track
+    h_track = host_node.layout.h_track
+    track_offset = h_track * TRACK_OFFSET
+    mid_xy = (node_xy[0], dup_xy[1]+ track_offset)
+    
+    fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+    fig.line(mid_xy, (dup_xy[0], dup_xy[1] + track_offset), PARASITE_EDGE_COLOR)
+
+    host_node.layout.h_track += 1
+
+
 
 def event_color(event):
     """ Return color for drawing event, depending on event type. """

@@ -4,6 +4,7 @@ import plot_tools
 VERTICAL_OFFSET = 0.1       # Offset for drawing parasite nodes above host nodes
 COSPECIATION_OFFSET = 0.8   # Offest for drawing parasite nodes closer to host 
                             # nodes for speciation events
+TRACK_OFFSET = 0.2
                         
 LEAF_NODE_COLOR = plot_tools.MAROON
 COSPECIATION_NODE_COLOR = plot_tools.BLUE
