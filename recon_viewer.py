@@ -17,6 +17,7 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
     :recon_dict: Reconciliation represented in dictionary format
     """
     host_tree, parasite_tree, recon = utils.convert_to_objects(host_dict, parasite_dict, recon_dict)
+    print(recon._parasite_map) #TODO get this parasite map to include losses?
     fig = plot_tools.FigureWrapper("Reconciliation")
     render_host(fig, host_tree, show_internal_labels)
     host_lookup = host_tree.name_to_node_dict()
@@ -123,24 +124,32 @@ def render_parasite_branches(fig, node, recon, host_lookup):
 
     mapping_node = recon.mapping_of(node.name)
     event = recon.event_of(mapping_node)
-    
-    print(event)
 
     if event.event_type is EventType.COSPECIATION:
-        render_cospeciation_branch(node_xy, left_xy, right_xy, fig, node)
+        render_cospeciation_branch(node_xy, left_xy, right_xy, fig)
         
     if event.event_type is EventType.DUPLICATION:
-        render_duplication_branch(node_xy, mapping_node, host_lookup, fig)
+        render_duplication_branch(node_xy, mapping_node, host_lookup, fig, recon, node)
         
 
     if event.event_type is EventType.TRANSFER:
-        render_transfer_branch(node_xy, left_xy, right_xy, fig, node)
+        render_transfer_branch(node_xy, left_xy, right_xy, fig)
                 
     if event.event_type is EventType.LOSS: 
+        #render_loss_branch(node_xy, left_xy, mapping_node, host_lookup, fig)
         pass
 
 
-def render_cospeciation_branch(node_xy, left_xy, right_xy, fig, node):
+
+
+def render_loss_branch(node_xy, next_xy, mapping_node, host_lookup, fig):
+
+    #Create vertical line to next node
+    mid_xy = (node_xy[0],next_xy[1])
+    fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR, linestyle='--')
+    fig.line(mid_xy, next_xy, PARASITE_EDGE_COLOR)
+
+def render_cospeciation_branch(node_xy, left_xy, right_xy, fig):
     """
     Renders the a cospeciation branch.
     :param 
@@ -157,7 +166,7 @@ def render_cospeciation_branch(node_xy, left_xy, right_xy, fig, node):
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
     fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
 
-def render_transfer_branch(node_xy, left_xy, right_xy, fig, node):
+def render_transfer_branch(node_xy, left_xy, right_xy, fig):
     #Draw left node
     mid_xy = (node_xy[0], left_xy[1])
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
@@ -179,7 +188,7 @@ def render_transfer_branch(node_xy, left_xy, right_xy, fig, node):
     fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
 
 
-def render_duplication_branch(node_xy, mapping_node, host_lookup, fig):
+def render_duplication_branch(node_xy, mapping_node, host_lookup, fig, recon, node):
     host_node = host_lookup[mapping_node.host]
     
     #using the coords of the host node, figure out where associated parasite node is
@@ -191,25 +200,39 @@ def render_duplication_branch(node_xy, mapping_node, host_lookup, fig):
     h_track = host_node.layout.h_track
     track_offset = h_track * TRACK_OFFSET           #computes an offset based on how many parasite edges are on host edge
 
-    mid_xy = (node_xy[0], dup_xy[1]+ track_offset)
+    mid_xy = (node_xy[0], dup_xy[1] + track_offset)
+    end_xy = (dup_xy[0], dup_xy[1] + track_offset)
 
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
-    fig.line(mid_xy, (dup_xy[0], dup_xy[1] + track_offset), PARASITE_EDGE_COLOR)
+    fig.line(mid_xy, end_xy, PARASITE_EDGE_COLOR)
 
     host_node.layout.h_track += 1                   #update the counter for keeping track of how many edges are on host
 
+    #Render a loss on the left end
+    next_xy = (node.left_node.layout.x, node.left_node.layout.y)
+    render_loss_branch(end_xy, next_xy, mapping_node, host_lookup, fig)
+
+
+    #TODO check what event to render at the end of a duplication
     
 
     #draw second track
     h_track = host_node.layout.h_track
     track_offset = h_track * TRACK_OFFSET
-    mid_xy = (node_xy[0], dup_xy[1]+ track_offset)
+    mid_xy = (node_xy[0], dup_xy[1] + track_offset)
+    end_xy = (dup_xy[0], dup_xy[1] + track_offset)
     
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
-    fig.line(mid_xy, (dup_xy[0], dup_xy[1] + track_offset), PARASITE_EDGE_COLOR)
+    fig.line(mid_xy, end_xy, PARASITE_EDGE_COLOR)
 
     host_node.layout.h_track += 1
 
+    #Render a loss on the right end
+    next_xy = (node.right_node.layout.x, node.right_node.layout.y)
+    render_loss_branch(end_xy, next_xy, mapping_node, host_lookup, fig)
+    
+
+    
 
 
 def event_color(event):

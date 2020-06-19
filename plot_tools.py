@@ -40,7 +40,7 @@ class FigureWrapper:
         """
         x_1, y_1 = point_1
         x_2, y_2 = point_2
-        self.axis.plot([x_1, x_2], [y_1, y_2], color=col, linewidth=LINEWIDTH, linestyle=linestyle, marker=marker, zorder=LINE_Z_ORDER)
+        self.axis.plot([x_1, x_2], [y_1, y_2], color=col, linewidth=LINEWIDTH, linestyle=linestyle, zorder=LINE_Z_ORDER)
 
     def dot(self, point, col=BLACK):
         """
