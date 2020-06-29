@@ -48,6 +48,23 @@ class Node:
         layout.x = x if x else layout.x
         layout.y = y if y else layout.y
 
+    def iter_track(self, track):
+        """updates track number and returns previous track of host node"""
+        if track == "H":
+            self.layout.h_track = self.layout.h_track + 1
+            return self.layout.h_track - 1
+        
+        if track == "UV":
+            self.layout.upper_v_track += 1
+            return self.layout.upper_v_track - 1
+        
+        if track == "LV":
+            self.layout.lower_v_track += 1
+            return self.layout.lower_v_track - 1
+        
+        
+
+
 class NodeLayout:
     """ Defines node layout attributes for rendering """
     def __init__(self):
@@ -57,7 +74,8 @@ class NodeLayout:
         self.col = None         # float: logical position of this Node in rendering
         self.x = None           # int: x-coordinate for rendering
         self.y = None           # int: y-coordinate for rendering
-        self.v_track = 0        # int: track number for vertical host edges
+        self.upper_v_track = 0  # int: track number for upper vertical host edges
+        self.lower_v_track = 0  # int: track number for lower vertical host edges
         self.h_track = 0        # int: track number for horizontal host edges
 
 

@@ -17,12 +17,21 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
     :recon_dict: Reconciliation represented in dictionary format
     """
     host_tree, parasite_tree, recon = utils.convert_to_objects(host_dict, parasite_dict, recon_dict)
-    print(recon._parasite_map) #TODO get this parasite map to include losses?
+
+    give_childeren_parents(host_tree)
+
     fig = plot_tools.FigureWrapper("Reconciliation")
     render_host(fig, host_tree, show_internal_labels)
     host_lookup = host_tree.name_to_node_dict()
     render_parasite(fig, parasite_tree, recon, host_lookup, show_internal_labels, show_freq)
     fig.show()
+
+
+#TODO Fix Bug
+def give_childeren_parents(host_tree):
+    for node in host_tree.postorder_list:
+        if node.right_node:
+            node.right_node.parent_node = node
 
 def render_host(fig, host_tree, show_internal_labels):
     """ Renders the host tree """
@@ -126,23 +135,29 @@ def render_parasite_branches(fig, node, recon, host_lookup):
     event = recon.event_of(mapping_node)
 
     if event.event_type is EventType.COSPECIATION:
-        render_cospeciation_branch(node_xy, left_xy, right_xy, fig)
+        #render_cospeciation_branch(node_xy, left_xy, right_xy, fig)
+        connect_child_to_parent(node, node.left_node, host_lookup, recon, fig)
+        connect_child_to_parent(node, node.right_node, host_lookup, recon, fig)
         
     if event.event_type is EventType.DUPLICATION:
-        render_duplication_branch(node_xy, mapping_node, host_lookup, fig, recon, node)
+        #render_duplication_branch(node_xy, mapping_node, host_lookup, fig, recon, node)
+        connect_child_to_parent(node, node.left_node, host_lookup, recon, fig)
+        connect_child_to_parent(node, node.right_node, host_lookup, recon, fig)
+        
         
 
     if event.event_type is EventType.TRANSFER:
-        render_transfer_branch(node_xy, left_xy, right_xy, fig)
+        connect_child_to_parent(node, node.left_node, host_lookup, recon, fig)
+        render_transfer_branch(node_xy, left_xy, right_xy, fig, node, host_lookup, recon)
                 
     if event.event_type is EventType.LOSS: 
-        #render_loss_branch(node_xy, left_xy, mapping_node, host_lookup, fig)
+        #render_loss_branch(node_xy, left_xy, fig)
         pass
 
 
 
 
-def render_loss_branch(node_xy, next_xy, mapping_node, host_lookup, fig):
+def render_loss_branch(node_xy, next_xy, fig):
 
     #Create vertical line to next node
     mid_xy = (node_xy[0],next_xy[1])
@@ -166,26 +181,31 @@ def render_cospeciation_branch(node_xy, left_xy, right_xy, fig):
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
     fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
 
-def render_transfer_branch(node_xy, left_xy, right_xy, fig):
+def render_transfer_branch(node_xy, left_xy, right_xy, fig, node, host_lookup, recon):
     #Draw left node
-    mid_xy = (node_xy[0], left_xy[1])
-    fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
-    fig.line(mid_xy, left_xy, PARASITE_EDGE_COLOR)
+    #mid_xy = (node_xy[0], left_xy[1])
+    #fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+    #fig.line(mid_xy, left_xy, PARASITE_EDGE_COLOR)
+    mapping_node = recon.mapping_of(node.name)
+    host_node = host_lookup[mapping_node.host]
 
+    if host_node.parent_node.layout.col < node.layout.col:
     #Draw right node, which is transfered
-    mid_xy = (node_xy[0], right_xy[1])          #xy coords of midpoint
-    y_midpoint = abs(mid_xy[1]+ node_xy[1])/2   #value of midpoint between mid_xy and parent node
+        mid_xy = (node_xy[0], right_xy[1])          #xy coords of midpoint
+        y_midpoint = abs(mid_xy[1]+ node_xy[1])/2   #value of midpoint between mid_xy and parent node
 
-    #determine if transfer is upwards or downwards, and draw trianle accordingly
-    is_upwards = True if y_midpoint < mid_xy[1] else False
-    if is_upwards:
-        fig.up_triangle((node_xy[0], y_midpoint), PARASITE_EDGE_COLOR)
+        #determine if transfer is upwards or downwards, and draw trianle accordingly
+        is_upwards = True if y_midpoint < mid_xy[1] else False
+        if is_upwards:
+            fig.up_triangle((node_xy[0], y_midpoint), PARASITE_EDGE_COLOR)
+        else:
+            fig.down_triangle((node_xy[0], y_midpoint), PARASITE_EDGE_COLOR)
+
+        #draw branch to midpoint, then draw branch to child
+        fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+        fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
     else:
-        fig.down_triangle((node_xy[0], y_midpoint), PARASITE_EDGE_COLOR)
-
-    #draw branch to midpoint, then draw branch to child
-    fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
-    fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
+        fig.line(node_xy, right_xy, PARASITE_EDGE_COLOR)
 
 
 def render_duplication_branch(node_xy, mapping_node, host_lookup, fig, recon, node):
@@ -210,7 +230,7 @@ def render_duplication_branch(node_xy, mapping_node, host_lookup, fig, recon, no
 
     #Render a loss on the left end
     next_xy = (node.left_node.layout.x, node.left_node.layout.y)
-    render_loss_branch(end_xy, next_xy, mapping_node, host_lookup, fig)
+    render_loss_branch(end_xy, next_xy, fig)
 
 
     #TODO check what event to render at the end of a duplication
@@ -232,8 +252,50 @@ def render_duplication_branch(node_xy, mapping_node, host_lookup, fig, recon, no
     render_loss_branch(end_xy, next_xy, mapping_node, host_lookup, fig)
     
 
+def connect_child_to_parent(node, child_node, host_lookup, recon, fig):
+    """
+    Connects a child node to its parent node
+    param
+    """
+    mapping_node = recon.mapping_of(child_node.name)
+    host_node = host_lookup[mapping_node.host]
+    
+    
+    current_xy = (child_node.layout.x, child_node.layout.y)
+
+    parent_node = node
+    while host_node.layout.row != parent_node.layout.row:
+        parent_node = host_node.parent_node
+        
+        if parent_node.layout.row < host_node.layout.row:
+            v_track = parent_node.iter_track("UV")
+        else:
+            v_track = parent_node.iter_track("LV")
+        h_track = parent_node.iter_track("H")
+        #print("Host Node: " + host_node.name + " " + str(host_node.layout.h_track))
+
+
+        sub_parent_xy = (parent_node.layout.x - (TRACK_OFFSET * v_track) - VERTICAL_OFFSET, \
+            parent_node.layout.y + (TRACK_OFFSET * h_track) + VERTICAL_OFFSET)
+
+        render_loss_branch(sub_parent_xy, current_xy, fig)
+
+        host_node = parent_node
+        current_xy = sub_parent_xy
+    
+    
+    node_xy = (node.layout.x, node.layout.y)
+
+    mid_xy = (node_xy[0], current_xy[1])
+
+    fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
+    fig.line(mid_xy, current_xy, PARASITE_EDGE_COLOR)
+
     
 
+def set_parasite_bend(host_node, VERTICAL_OFFSET):
+    """return the translated coordinates where the branch bends"""
+    return (host_node.layout.x - (VERTICAL_OFFSET*2), host_node.layout.y + VERTICAL_OFFSET)
 
 def event_color(event):
     """ Return color for drawing event, depending on event type. """
