@@ -16,7 +16,7 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
     :param parasite_dict:  Parasite tree represented in dictionary format
     :recon_dict: Reconciliation represented in dictionary format
     """
-    host_tree, parasite_tree, recon = utils.convert_to_objects(host_dict, parasite_dict, recon_dict)
+    host_tree, parasite_tree, recon, consistency_type = utils.convert_to_objects(host_dict, parasite_dict, recon_dict)
 
     give_childeren_parents(host_tree)
 
