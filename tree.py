@@ -61,7 +61,12 @@ class Node:
         if track == "LV":
             self.layout.lower_v_track += 1
             return self.layout.lower_v_track - 1
-        
+        if track == "C":
+            self.layout.speciation_track += 1
+            return self.layout.speciation_track - 1
+        if track == "T":
+            self.layout.tip_track += 1
+            return self.layout.tip_track - 1
         
 
 
@@ -77,6 +82,8 @@ class NodeLayout:
         self.upper_v_track = 0  # int: track number for upper vertical host edges
         self.lower_v_track = 0  # int: track number for lower vertical host edges
         self.h_track = 0        # int: track number for horizontal host edges
+        self.speciation_track = 0
+        self.tip_track = 0
 
 
 class Tree:

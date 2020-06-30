@@ -8,7 +8,7 @@ import utils
 import plot_tools
 from render_settings import LEAF_NODE_COLOR, COSPECIATION_NODE_COLOR, \
     DUPLICATION_NODE_COLOR, TRANSFER_NODE_COLOR, HOST_NODE_COLOR, HOST_EDGE_COLOR, \
-    PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET
+    PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET, NODE_OFFSET
 
 def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, show_freq=False):
     """ Renders a reconciliation using matplotlib
@@ -96,6 +96,9 @@ def render_parasite_helper(fig, node, recon, host_lookup, show_internal_labels, 
     
     if event.event_type is EventType.COSPECIATION:
         node.layout.x += COSPECIATION_OFFSET
+        node.layout.y += host_node.iter_track("C") * NODE_OFFSET
+    if event.event_type is EventType.TIPTIP:
+        node.layout.y += host_node.iter_track("T") * NODE_OFFSET
     # Render parasite node and recurse if not a leaf
     
     if node.is_leaf:
@@ -135,16 +138,12 @@ def render_parasite_branches(fig, node, recon, host_lookup):
     event = recon.event_of(mapping_node)
 
     if event.event_type is EventType.COSPECIATION:
-        #render_cospeciation_branch(node_xy, left_xy, right_xy, fig)
-        connect_child_to_parent(node, node.left_node, host_lookup, recon, fig)
-        connect_child_to_parent(node, node.right_node, host_lookup, recon, fig)
+        render_cospeciation_branch(node, host_lookup, recon, fig)
+        #connect_children(node, host_lookup, recon, fig)
         
     if event.event_type is EventType.DUPLICATION:
         #render_duplication_branch(node_xy, mapping_node, host_lookup, fig, recon, node)
-        connect_child_to_parent(node, node.left_node, host_lookup, recon, fig)
-        connect_child_to_parent(node, node.right_node, host_lookup, recon, fig)
-        
-        
+        connect_children(node, host_lookup, recon, fig)
 
     if event.event_type is EventType.TRANSFER:
         connect_child_to_parent(node, node.left_node, host_lookup, recon, fig)
@@ -155,7 +154,9 @@ def render_parasite_branches(fig, node, recon, host_lookup):
         pass
 
 
-
+def connect_children(node, host_lookup, recon, fig):
+    connect_child_to_parent(node, node.left_node, host_lookup, recon, fig)
+    connect_child_to_parent(node, node.right_node, host_lookup, recon, fig)
 
 def render_loss_branch(node_xy, next_xy, fig):
 
@@ -164,22 +165,46 @@ def render_loss_branch(node_xy, next_xy, fig):
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR, linestyle='--')
     fig.line(mid_xy, next_xy, PARASITE_EDGE_COLOR)
 
-def render_cospeciation_branch(node_xy, left_xy, right_xy, fig):
+def render_cospeciation_branch(node, host_lookup, recon, fig):
     """
     Renders the a cospeciation branch.
     :param 
     """
+
+    left_node = node.left_node
+    right_node = node.right_node
+
+    node_xy = (node.layout.x, node.layout.y)
+    left_xy = (left_node.layout.x, left_node.layout.y)
+    right_xy = (right_node.layout.x, right_node.layout.y)
+
+    mapping_node = recon.mapping_of(node.name)
+    host_node = host_lookup[mapping_node.host]
+
+
+    left_mapping_node = recon.mapping_of(left_node.name)
+    left_host_node = host_lookup[left_mapping_node.host]
+
+    right_mapping_node = recon.mapping_of(right_node.name)
+    right_host_node = host_lookup[right_mapping_node.host]
+    
     #Draw left node
-    mid_xy = (node_xy[0], left_xy[1])
-    fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
-
-
-    fig.line(mid_xy, left_xy, PARASITE_EDGE_COLOR)
+    if host_node.left_node.name == left_host_node.name:
+        render_line_to(node_xy, left_xy, fig)
+    else:
+        connect_child_to_parent(node, left_node, host_lookup, recon, fig)
 
     #Draw Right node
-    mid_xy = (node_xy[0], right_xy[1])
+    if host_node.right_node.name == right_host_node.name:
+        render_line_to(node_xy, right_xy, fig)
+    else:
+        connect_child_to_parent(node, right_node, host_lookup, recon, fig)
+
+#TODO change this name
+def render_line_to(node_xy, other_xy, fig):
+    mid_xy = (node_xy[0], other_xy[1])
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
-    fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
+    fig.line(mid_xy, other_xy, PARASITE_EDGE_COLOR)
 
 def render_transfer_branch(node_xy, left_xy, right_xy, fig, node, host_lookup, recon):
     #Draw left node
@@ -249,7 +274,7 @@ def render_duplication_branch(node_xy, mapping_node, host_lookup, fig, recon, no
 
     #Render a loss on the right end
     next_xy = (node.right_node.layout.x, node.right_node.layout.y)
-    render_loss_branch(end_xy, next_xy, mapping_node, host_lookup, fig)
+    render_loss_branch(end_xy, next_xy, fig)
     
 
 def connect_child_to_parent(node, child_node, host_lookup, recon, fig):
@@ -272,7 +297,6 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig):
         else:
             v_track = parent_node.iter_track("LV")
         h_track = parent_node.iter_track("H")
-        #print("Host Node: " + host_node.name + " " + str(host_node.layout.h_track))
 
 
         sub_parent_xy = (parent_node.layout.x - (TRACK_OFFSET * v_track) - VERTICAL_OFFSET, \

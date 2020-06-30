@@ -94,23 +94,3 @@ recon_dict3 = {
     ('G. costaricensis', 'O. heterodus'): [('C', (None, None), (None, None))]
 }
 
-
-
-'''
-{ ('n0', 'm1'): [('T', ('n1', 'm1'), ('n4', 'm4'))],
-('n1', 'm1'): [('D', ('n2', 'm1'), ('n3', 'm1'))],
-('n2', 'm1'): [('L', ('n2', 'm2'), (None, None))],
-('n3', 'm1'): [('L', ('n3', 'm3'), (None, None))],
-('n2', 'm2'): [('C', (None, None), (None, None))],
-('n3', 'm3'): [('C', (None, None), (None, None))],
-('n4', 'm4'): [('C', (None, None), (None, None))]}
-
-
-
-
-{ ('n0', 'm0'): [('S', ('n1', 'm1'), ('n4', 'm4'))],
-('n1', 'm1'): [('S', ('n2', 'm2'), ('n3', 'm3'))],
-('n2', 'm2'): [('C', (None, None), (None, None))],
-('n3', 'm3'): [('C', (None, None), (None, None))],
-('n4', 'm4'): [('C', (None, None), (None, None))]}
-'''
