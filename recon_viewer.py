@@ -8,7 +8,7 @@ import utils
 import plot_tools
 from render_settings import LEAF_NODE_COLOR, COSPECIATION_NODE_COLOR, \
     DUPLICATION_NODE_COLOR, TRANSFER_NODE_COLOR, HOST_NODE_COLOR, HOST_EDGE_COLOR, \
-    PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET, NODE_OFFSET
+    PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET, NODE_OFFSET, TIP_TEXT_OFFSET
 
 def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, show_freq=False):
     """ Renders a reconciliation using matplotlib
@@ -50,7 +50,7 @@ def render_host_helper(fig, node, show_internal_labels):
     node_xy = (node_x, node_y)
     if node.is_leaf:
         fig.dot(node_xy)
-        fig.text(node_xy, node.name)
+        fig.text((node_x + TIP_TEXT_OFFSET, node_y - TIP_TEXT_OFFSET), node.name)
     else:
         fig.dot(node_xy, HOST_NODE_COLOR)  # Render host node
         if show_internal_labels:
@@ -121,7 +121,10 @@ def render_parasite_node(fig, node, event, show_internal_labels=False, show_freq
     render_color = event_color(event)
     
     fig.dot(node_xy, render_color)
-    fig.text(node_xy, node.name, render_color)
+    if node.is_leaf:
+        fig.text((node.layout.x + TIP_TEXT_OFFSET, node.layout.y - TIP_TEXT_OFFSET), node.name)
+    else:
+        fig.text(node_xy, node.name, render_color)
 
     if show_freq:
         fig.text(node_xy, event.freq, render_color)
@@ -256,9 +259,6 @@ def render_duplication_branch(node_xy, mapping_node, host_lookup, fig, recon, no
     #Render a loss on the left end
     next_xy = (node.left_node.layout.x, node.left_node.layout.y)
     render_loss_branch(end_xy, next_xy, fig)
-
-
-    #TODO check what event to render at the end of a duplication
     
 
     #draw second track

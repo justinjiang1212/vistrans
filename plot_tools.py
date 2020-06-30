@@ -7,6 +7,7 @@ Plotting tools using matplotlib
 # matplotlib.use("tkagg")
 
 from matplotlib import pyplot as plt
+from matplotlib.lines import Line2D
 
 # Colors
 # Define new colors as 4-tuples of the form (r, g, b, 1) where
@@ -22,7 +23,8 @@ LINEWIDTH = 2
 LINE_Z_ORDER = 0
 DOT_Z_ORDER = 1
 FONTSIZE = 12
-TRANSFERSIZE = 20
+TRANSFERSIZE = 10
+NODESIZE = 8
 
 class FigureWrapper:
     """ Class definining plotting methods """
@@ -33,6 +35,21 @@ class FigureWrapper:
         self.axis.margins(0.1)
         self.axis.axis("off")
         self.axis.set_title(title)
+
+        legend_elements = [Line2D([0], [0], marker='o', color='w', label='Leaf', \
+                          markerfacecolor=MAROON, markersize=NODESIZE),
+                          Line2D([0], [0], marker='o', color='w', label='Cospeciation', \
+                          markerfacecolor=BLUE, markersize=NODESIZE),
+                          Line2D([0], [0], marker='o', color='w', label='Duplication', \
+                          markerfacecolor=GREEN, markersize=NODESIZE),
+                          Line2D([0], [0], marker='o', color='w', label='Transfer', \
+                          markerfacecolor=RED, markersize=NODESIZE),\
+                
+                          ] 
+
+        
+        self.axis.legend(handles=legend_elements, loc='lower left', fontsize = FONTSIZE)
+        
 
     def line(self, point_1, point_2, col=BLACK, linestyle='-', marker=None):
         """
