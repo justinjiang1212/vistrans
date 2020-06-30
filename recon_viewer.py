@@ -50,7 +50,7 @@ def render_host_helper(fig, node, show_internal_labels):
     node_xy = (node_x, node_y)
     if node.is_leaf:
         fig.dot(node_xy)
-        fig.text((node_x + TIP_TEXT_OFFSET, node_y - TIP_TEXT_OFFSET), node.name)
+        fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name)
     else:
         fig.dot(node_xy, HOST_NODE_COLOR)  # Render host node
         if show_internal_labels:
@@ -121,8 +121,9 @@ def render_parasite_node(fig, node, event, show_internal_labels=False, show_freq
     render_color = event_color(event)
     
     fig.dot(node_xy, render_color)
+
     if node.is_leaf:
-        fig.text((node.layout.x + TIP_TEXT_OFFSET, node.layout.y - TIP_TEXT_OFFSET), node.name)
+        fig.text((node.layout.x + TIP_TEXT_OFFSET[0], node.layout.y - + TIP_TEXT_OFFSET[1]), node.name, render_color)
     else:
         fig.text(node_xy, node.name, render_color)
 
@@ -194,12 +195,14 @@ def render_cospeciation_branch(node, host_lookup, recon, fig):
     #Draw left node
     if host_node.left_node.name == left_host_node.name:
         render_line_to(node_xy, left_xy, fig)
+        host_node.layout.lower_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
         connect_child_to_parent(node, left_node, host_lookup, recon, fig)
 
     #Draw Right node
     if host_node.right_node.name == right_host_node.name:
         render_line_to(node_xy, right_xy, fig)
+        host_node.layout.upper_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
         connect_child_to_parent(node, right_node, host_lookup, recon, fig)
 
@@ -288,10 +291,8 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig):
     
     current_xy = (child_node.layout.x, child_node.layout.y)
 
-    parent_node = node
-    while host_node.layout.row != parent_node.layout.row:
+    while host_node.layout.row != node.layout.row:
         parent_node = host_node.parent_node
-        
         if parent_node.layout.row < host_node.layout.row:
             v_track = parent_node.iter_track("UV")
         else:
@@ -306,7 +307,6 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig):
 
         host_node = parent_node
         current_xy = sub_parent_xy
-    
     
     node_xy = (node.layout.x, node.layout.y)
 
