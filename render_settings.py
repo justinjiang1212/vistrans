@@ -6,7 +6,7 @@ COSPECIATION_OFFSET = .4    # Offest for drawing parasite nodes closer to host
 NODE_OFFSET = 0.4
 TRACK_OFFSET = 0.3
 #TIP_TEXT_OFFSET = (0.2, 0.05)
-TIP_TEXT_OFFSET = (.2, 0)
+TIP_TEXT_OFFSET = (.3, 0)
 
 
 # Colors
