@@ -36,15 +36,15 @@ class FigureWrapper:
         self.axis.axis("off")
         self.axis.set_title(title)
 
-        legend_elements = [Line2D([0], [0], marker='o', color='w', label='Leaf', \
-                          markerfacecolor=MAROON, markersize=NODESIZE),
+        dash_line = Line2D([0, 200], [0, 300], color=GRAY, label='Loss')
+        dash_line.set_linestyle('--')
+        legend_elements = [dash_line,
                           Line2D([0], [0], marker='o', color='w', label='Cospeciation', \
                           markerfacecolor=BLUE, markersize=NODESIZE),
                           Line2D([0], [0], marker='o', color='w', label='Duplication', \
                           markerfacecolor=GREEN, markersize=NODESIZE),
                           Line2D([0], [0], marker='o', color='w', label='Transfer', \
                           markerfacecolor=RED, markersize=NODESIZE),\
-                
                           ] 
 
         
