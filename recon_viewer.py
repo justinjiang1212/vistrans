@@ -197,14 +197,16 @@ def render_cospeciation_branch(node, host_lookup, recon, fig):
         render_line_to(node_xy, left_xy, fig)
         host_node.layout.lower_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
-        connect_child_to_parent(node, left_node, host_lookup, recon, fig)
+        stop_row = host_node.left_node.layout.row
+        connect_child_to_parent(node, left_node, host_lookup, recon, fig, stop_row=stop_row)
 
     #Draw Right node
     if host_node.right_node.name == right_host_node.name:
         render_line_to(node_xy, right_xy, fig)
         host_node.layout.upper_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
-        connect_child_to_parent(node, right_node, host_lookup, recon, fig)
+        stop_row = host_node.right_node.layout.row
+        connect_child_to_parent(node, right_node, host_lookup, recon, fig, stop_row=stop_row)
 
 #TODO change this name
 def render_line_to(node_xy, other_xy, fig):
@@ -280,7 +282,7 @@ def render_duplication_branch(node_xy, mapping_node, host_lookup, fig, recon, no
     render_loss_branch(end_xy, next_xy, fig)
     
 
-def connect_child_to_parent(node, child_node, host_lookup, recon, fig):
+def connect_child_to_parent(node, child_node, host_lookup, recon, fig, stop_row=None):
     """
     Connects a child node to its parent node
     param
@@ -288,10 +290,13 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig):
     mapping_node = recon.mapping_of(child_node.name)
     host_node = host_lookup[mapping_node.host]
     
-    
+    if not(stop_row):
+        stop_row = node.layout.row
+
     current_xy = (child_node.layout.x, child_node.layout.y)
 
-    while host_node.layout.row != node.layout.row:
+
+    while host_node.layout.row != stop_row:
         parent_node = host_node.parent_node
         if parent_node.layout.row < host_node.layout.row:
             v_track = parent_node.iter_track("UV")
@@ -314,6 +319,9 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig):
 
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
     fig.line(mid_xy, current_xy, PARASITE_EDGE_COLOR)
+
+    if stop_row:
+        host_node.iter_track("H")
 
     
 
