@@ -10,7 +10,8 @@ import plot_tools
 from render_settings import LEAF_NODE_COLOR, COSPECIATION_NODE_COLOR, \
     DUPLICATION_NODE_COLOR, TRANSFER_NODE_COLOR, HOST_NODE_COLOR, HOST_EDGE_COLOR, \
     PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET, NODE_OFFSET, \
-    TIP_TEXT_OFFSET, FONT_SIZE, MIN_FONT_SIZE
+    TIP_TEXT_OFFSET, FONT_SIZE, MIN_FONT_SIZE, LEAF_NODE_SHAPE, COSPECIATION_NODE_SHAPE, \
+        DUPLICATION_NODE_SHAPE, TRANSFER_NODE_SHAPE
 
 def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, show_freq=False):
     """ Renders a reconciliation using matplotlib
@@ -26,7 +27,7 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
 
     num_tips = len(host_tree.leaf_list) + len(parasite_tree.leaf_list)
     font_size = calculate_font_size(num_tips)
-    print(font_size)
+    #print(font_size)
     render_host(fig, host_tree, show_internal_labels, font_size)
     host_lookup = host_tree.name_to_node_dict()
     render_parasite(fig, parasite_tree, recon, host_lookup, show_internal_labels, show_freq, font_size)
@@ -58,7 +59,7 @@ def render_host_helper(fig, node, show_internal_labels, font_size):
         fig.dot(node_xy)
         fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name, font_size = font_size)
     else:
-        fig.dot(node_xy, HOST_NODE_COLOR)  # Render host node
+        fig.dot(node_xy, col = HOST_NODE_COLOR)  # Render host node
         if show_internal_labels:
             fig.text(node_xy, node.name)
         left_x, left_y = node.left_node.layout.x, node.left_node.layout.y
@@ -124,9 +125,9 @@ def render_parasite_node(fig, node, event, font_size, show_internal_labels=False
     Renders a single parasite node
     """
     node_xy = (node.layout.x, node.layout.y)
-    render_color = event_color(event)
+    render_color, render_shape = event_color_shape(event)
     
-    fig.dot(node_xy, render_color)
+    fig.dot(node_xy, col = render_color, marker = render_shape)
 
     if node.is_leaf:
         fig.text((node.layout.x + TIP_TEXT_OFFSET[0], node.layout.y - + TIP_TEXT_OFFSET[1]), node.name, render_color, font_size = font_size)
@@ -344,16 +345,16 @@ def set_parasite_bend(host_node, VERTICAL_OFFSET):
     """return the translated coordinates where the branch bends"""
     return (host_node.layout.x - (VERTICAL_OFFSET*2), host_node.layout.y + VERTICAL_OFFSET)
 
-def event_color(event):
+def event_color_shape(event):
     """ Return color for drawing event, depending on event type. """
     if event.event_type is EventType.TIPTIP:
-        return LEAF_NODE_COLOR
+        return LEAF_NODE_COLOR, LEAF_NODE_SHAPE
     if event.event_type is EventType.COSPECIATION:
-        return COSPECIATION_NODE_COLOR
+        return COSPECIATION_NODE_COLOR, COSPECIATION_NODE_SHAPE
     if event.event_type is EventType.DUPLICATION:
-        return DUPLICATION_NODE_COLOR
+        return DUPLICATION_NODE_COLOR, DUPLICATION_NODE_SHAPE
     if event.event_type is EventType.TRANSFER:
-        return TRANSFER_NODE_COLOR
+        return TRANSFER_NODE_COLOR, TRANSFER_NODE_SHAPE
     return plot_tools.BLACK
 
 def set_host_node_layout(host_tree):

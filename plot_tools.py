@@ -12,7 +12,8 @@ from matplotlib.collections import LineCollection
 
 from render_settings import COSPECIATION_NODE_COLOR, \
     DUPLICATION_NODE_COLOR, TRANSFER_NODE_COLOR, HOST_NODE_COLOR, \
-    PARASITE_EDGE_COLOR, RED, MAROON, GREEN, BLUE, PURPLE, BLACK, GRAY
+    PARASITE_EDGE_COLOR, RED, MAROON, GREEN, BLUE, PURPLE, BLACK, GRAY, \
+        COSPECIATION_NODE_SHAPE, DUPLICATION_NODE_SHAPE, TRANSFER_NODE_SHAPE
 
 
 LINEWIDTH = 2
@@ -34,11 +35,11 @@ class FigureWrapper:
 
 
         legend_elements = [
-                          Line2D([0], [0], marker='o', color='w', label='Cospeciation', \
+                          Line2D([0], [0], marker= COSPECIATION_NODE_SHAPE, color='w', label='Cospeciation', \
                           markerfacecolor=COSPECIATION_NODE_COLOR, markersize=NODESIZE),
-                          Line2D([0], [0], marker='o', color='w', label='Duplication', \
+                          Line2D([0], [0], marker=DUPLICATION_NODE_SHAPE, color='w', label='Duplication', \
                           markerfacecolor=DUPLICATION_NODE_COLOR, markersize=NODESIZE),
-                          Line2D([0], [0], marker='o', color='w', label='Transfer', \
+                          Line2D([0], [0], marker=TRANSFER_NODE_SHAPE, color='w', label='Transfer', \
                           markerfacecolor=TRANSFER_NODE_COLOR, markersize=NODESIZE),\
                           LineCollection( [[(0, 0)]], linestyles = ['dashed'], \
                               colors = [PARASITE_EDGE_COLOR], label='Loss')
@@ -56,12 +57,12 @@ class FigureWrapper:
         x_2, y_2 = point_2
         self.axis.plot([x_1, x_2], [y_1, y_2], color=col, linewidth=LINEWIDTH, linestyle=linestyle, zorder=LINE_Z_ORDER)
 
-    def dot(self, point, col=BLACK):
+    def dot(self, point, marker = 'o', col=BLACK):
         """
         Plot dot at point p
         """
         x, y = point
-        self.axis.plot(x, y, 'o', color=col, zorder=DOT_Z_ORDER)
+        self.axis.plot(x, y, marker, color=col, zorder=DOT_Z_ORDER)
     
     def text(self, point, text, col=BLACK, font_size=FONTSIZE):
         """
