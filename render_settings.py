@@ -7,11 +7,24 @@ COSPECIATION_OFFSET = .4    # Offest for drawing parasite nodes closer to host
 NODE_OFFSET = 0.4
 TRACK_OFFSET = 0.3
 TIP_TEXT_OFFSET = (0.2, 0.08)
+
+
+# Colors
+# Define new colors as 4-tuples of the form (r, g, b, 1) where
+# r, g, b are values between 0 and 1 indicating the amount of red, green, and blue.
+RED = (1, 0, 0, 1)
+MAROON = (0.5, 0, 0, 1)
+GREEN = (0, 0.5, 0, 1)
+BLUE = (0, 0, 1, 1)
+PURPLE = (0.5, 0, 0.5, 1)
+BLACK = (0, 0, 0, 1)
+GRAY = (0.5, 0.5, 0.5, 1)
+
                         
-LEAF_NODE_COLOR = plot_tools.MAROON
-COSPECIATION_NODE_COLOR = plot_tools.BLUE
-DUPLICATION_NODE_COLOR = plot_tools.GREEN
-TRANSFER_NODE_COLOR = plot_tools.RED
-HOST_NODE_COLOR = plot_tools.BLACK
-HOST_EDGE_COLOR = plot_tools.BLACK
-PARASITE_EDGE_COLOR = plot_tools.GRAY
+LEAF_NODE_COLOR = MAROON
+COSPECIATION_NODE_COLOR = BLUE
+DUPLICATION_NODE_COLOR = GREEN
+TRANSFER_NODE_COLOR = RED
+HOST_NODE_COLOR = BLACK
+HOST_EDGE_COLOR = BLACK
+PARASITE_EDGE_COLOR = GRAY

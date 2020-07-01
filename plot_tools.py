@@ -8,17 +8,13 @@ Plotting tools using matplotlib
 
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
+from matplotlib.collections import LineCollection
 
-# Colors
-# Define new colors as 4-tuples of the form (r, g, b, 1) where
-# r, g, b are values between 0 and 1 indicating the amount of red, green, and blue.
-RED = (1, 0, 0, 1)
-MAROON = (0.5, 0, 0, 1)
-GREEN = (0, 0.5, 0, 1)
-BLUE = (0, 0, 1, 1)
-PURPLE = (0.5, 0, 0.5, 1)
-BLACK = (0, 0, 0, 1)
-GRAY = (0.5, 0.5, 0.5, 1)
+from render_settings import COSPECIATION_NODE_COLOR, \
+    DUPLICATION_NODE_COLOR, TRANSFER_NODE_COLOR, HOST_NODE_COLOR, \
+    PARASITE_EDGE_COLOR, RED, MAROON, GREEN, BLUE, PURPLE, BLACK, GRAY
+
+
 LINEWIDTH = 2
 LINE_Z_ORDER = 0
 DOT_Z_ORDER = 1
@@ -36,17 +32,18 @@ class FigureWrapper:
         self.axis.axis("off")
         self.axis.set_title(title)
 
-        dash_line = Line2D([0, 200], [0, 300], color=GRAY, label='Loss')
-        dash_line.set_linestyle('--')
-        legend_elements = [dash_line,
-                          Line2D([0], [0], marker='o', color='w', label='Cospeciation', \
-                          markerfacecolor=BLUE, markersize=NODESIZE),
-                          Line2D([0], [0], marker='o', color='w', label='Duplication', \
-                          markerfacecolor=GREEN, markersize=NODESIZE),
-                          Line2D([0], [0], marker='o', color='w', label='Transfer', \
-                          markerfacecolor=RED, markersize=NODESIZE),\
-                          ] 
 
+        legend_elements = [
+                          Line2D([0], [0], marker='o', color='w', label='Cospeciation', \
+                          markerfacecolor=COSPECIATION_NODE_COLOR, markersize=NODESIZE),
+                          Line2D([0], [0], marker='o', color='w', label='Duplication', \
+                          markerfacecolor=DUPLICATION_NODE_COLOR, markersize=NODESIZE),
+                          Line2D([0], [0], marker='o', color='w', label='Transfer', \
+                          markerfacecolor=TRANSFER_NODE_COLOR, markersize=NODESIZE),\
+                          LineCollection( [[(0, 0)]], linestyles = ['dashed'], \
+                              colors = [PARASITE_EDGE_COLOR], label='Loss')
+                
+                          ] 
         
         self.axis.legend(handles=legend_elements, loc='lower left', fontsize = FONTSIZE)
         
