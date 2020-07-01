@@ -11,7 +11,7 @@ from render_settings import LEAF_NODE_COLOR, COSPECIATION_NODE_COLOR, \
     DUPLICATION_NODE_COLOR, TRANSFER_NODE_COLOR, HOST_NODE_COLOR, HOST_EDGE_COLOR, \
     PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET, NODE_OFFSET, \
     TIP_TEXT_OFFSET, FONT_SIZE, MIN_FONT_SIZE, LEAF_NODE_SHAPE, COSPECIATION_NODE_SHAPE, \
-        DUPLICATION_NODE_SHAPE, TRANSFER_NODE_SHAPE, TIP_ALIGNMENT
+        DUPLICATION_NODE_SHAPE, TRANSFER_NODE_SHAPE, TIP_ALIGNMENT, LOSS_EDGE_COLOR
 
 def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, show_freq=False):
     """ Renders a reconciliation using matplotlib
@@ -182,7 +182,7 @@ def render_loss_branch(node_xy, next_xy, fig):
 
     #Create vertical line to next node
     mid_xy = (node_xy[0],next_xy[1])
-    fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR, linestyle='--')
+    fig.line(node_xy, mid_xy, LOSS_EDGE_COLOR, linestyle='--')
     fig.line(mid_xy, next_xy, PARASITE_EDGE_COLOR)
 
 def render_cospeciation_branch(node, host_lookup, recon, fig):

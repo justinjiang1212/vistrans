@@ -13,7 +13,8 @@ from matplotlib.collections import LineCollection
 from render_settings import COSPECIATION_NODE_COLOR, \
     DUPLICATION_NODE_COLOR, TRANSFER_NODE_COLOR, HOST_NODE_COLOR, \
     PARASITE_EDGE_COLOR, RED, MAROON, GREEN, BLUE, PURPLE, BLACK, GRAY, \
-        COSPECIATION_NODE_SHAPE, DUPLICATION_NODE_SHAPE, TRANSFER_NODE_SHAPE
+    COSPECIATION_NODE_SHAPE, DUPLICATION_NODE_SHAPE, TRANSFER_NODE_SHAPE, \
+    LOSS_EDGE_COLOR
 
 
 LINEWIDTH = 2
@@ -44,8 +45,7 @@ class FigureWrapper:
                           Line2D([0], [0], marker=TRANSFER_NODE_SHAPE, color='w', label='Transfer', \
                           markerfacecolor=TRANSFER_NODE_COLOR, markersize=NODESIZE),\
                           LineCollection( [[(0, 0)]], linestyles = ['dashed'], \
-                              colors = [PARASITE_EDGE_COLOR], label='Loss')
-                
+                              colors = [LOSS_EDGE_COLOR], label='Loss')
                           ] 
         
         self.axis.legend(handles=legend_elements, loc='lower left', fontsize = FONTSIZE)
