@@ -63,12 +63,12 @@ class FigureWrapper:
         x, y = point
         self.axis.plot(x, y, 'o', color=col, zorder=DOT_Z_ORDER)
     
-    def text(self, point, text, col=BLACK):
+    def text(self, point, text, col=BLACK, font_size=FONTSIZE):
         """
         Plot text at s at point p
         """
         x, y = point
-        self.axis.text(x, y, text, color=col, fontsize=FONTSIZE)
+        self.axis.text(x, y, text, color=col, fontsize=font_size)
 
     def show(self):
         """ 

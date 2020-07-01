@@ -5,7 +5,7 @@ COSPECIATION_OFFSET = .4    # Offest for drawing parasite nodes closer to host
                             # nodes for speciation events
 NODE_OFFSET = 0.4
 TRACK_OFFSET = 0.3
-TIP_TEXT_OFFSET = (0.2, 0.08)
+TIP_TEXT_OFFSET = (0.2, 0.05)
 
 
 # Colors
@@ -27,3 +27,6 @@ TRANSFER_NODE_COLOR = RED
 HOST_NODE_COLOR = BLACK
 HOST_EDGE_COLOR = BLACK
 PARASITE_EDGE_COLOR = GRAY
+
+FONT_SIZE = 20
+MIN_FONT_SIZE = 8

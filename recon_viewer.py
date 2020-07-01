@@ -4,11 +4,13 @@ View a single reconciliation using matplotlib
 """
 
 from recon import EventType
+from math import exp, ceil
 import utils
 import plot_tools
 from render_settings import LEAF_NODE_COLOR, COSPECIATION_NODE_COLOR, \
     DUPLICATION_NODE_COLOR, TRANSFER_NODE_COLOR, HOST_NODE_COLOR, HOST_EDGE_COLOR, \
-    PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET, NODE_OFFSET, TIP_TEXT_OFFSET
+    PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET, NODE_OFFSET, \
+    TIP_TEXT_OFFSET, FONT_SIZE, MIN_FONT_SIZE
 
 def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, show_freq=False):
     """ Renders a reconciliation using matplotlib
@@ -21,9 +23,13 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
     give_childeren_parents(host_tree)
 
     fig = plot_tools.FigureWrapper("Reconciliation")
-    render_host(fig, host_tree, show_internal_labels)
+
+    num_tips = len(host_tree.leaf_list) + len(parasite_tree.leaf_list)
+    font_size = calculate_font_size(num_tips)
+    print(font_size)
+    render_host(fig, host_tree, show_internal_labels, font_size)
     host_lookup = host_tree.name_to_node_dict()
-    render_parasite(fig, parasite_tree, recon, host_lookup, show_internal_labels, show_freq)
+    render_parasite(fig, parasite_tree, recon, host_lookup, show_internal_labels, show_freq, font_size)
     fig.show()
 
 
@@ -33,24 +39,24 @@ def give_childeren_parents(host_tree):
         if node.right_node:
             node.right_node.parent_node = node
 
-def render_host(fig, host_tree, show_internal_labels):
+def render_host(fig, host_tree, show_internal_labels, font_size):
     """ Renders the host tree """
     set_host_node_layout(host_tree)
     root = host_tree.root_node
     draw_host_handle(fig, root)
-    render_host_helper(fig, root, show_internal_labels)
+    render_host_helper(fig, root, show_internal_labels, font_size)
 
 def draw_host_handle(fig, root):
     """ Draw edge leading to root of host tree. """
     fig.line((0, root.layout.y), (root.layout.x, root.layout.y), HOST_EDGE_COLOR)
 
-def render_host_helper(fig, node, show_internal_labels):
+def render_host_helper(fig, node, show_internal_labels, font_size):
     """ Helper function for rendering the host tree. """
     node_x, node_y = node.layout.x, node.layout.y
     node_xy = (node_x, node_y)
     if node.is_leaf:
         fig.dot(node_xy)
-        fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name)
+        fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name, font_size = font_size)
     else:
         fig.dot(node_xy, HOST_NODE_COLOR)  # Render host node
         if show_internal_labels:
@@ -61,15 +67,15 @@ def render_host_helper(fig, node, show_internal_labels):
         fig.line(node_xy, (node_x, right_y), HOST_EDGE_COLOR)
         fig.line((node_x, left_y), (left_x, left_y), HOST_EDGE_COLOR)
         fig.line((node_x, right_y), (right_x, right_y), HOST_EDGE_COLOR)
-        render_host_helper(fig, node.left_node, show_internal_labels)
-        render_host_helper(fig, node.right_node, show_internal_labels)
+        render_host_helper(fig, node.left_node, show_internal_labels, font_size)
+        render_host_helper(fig, node.right_node, show_internal_labels, font_size)
 
-def render_parasite(fig, parasite_tree, recon, host_lookup, show_internal_labels, show_freq):
+def render_parasite(fig, parasite_tree, recon, host_lookup, show_internal_labels, show_freq, font_size):
     """ Render the parasite tree. """
     root = parasite_tree.root_node
-    render_parasite_helper(fig, root, recon, host_lookup, show_internal_labels, show_freq)
+    render_parasite_helper(fig, root, recon, host_lookup, show_internal_labels, show_freq, font_size)
 
-def render_parasite_helper(fig, node, recon, host_lookup, show_internal_labels, show_freq):
+def render_parasite_helper(fig, node, recon, host_lookup, show_internal_labels, show_freq, font_size):
     """ Helper function for rendering the parasite tree. """
     # mapping_node is of type MappingNode which associates
     # a parasite to a host in a reconciliation
@@ -102,18 +108,18 @@ def render_parasite_helper(fig, node, recon, host_lookup, show_internal_labels, 
     # Render parasite node and recurse if not a leaf
     
     if node.is_leaf:
-        render_parasite_node(fig, node, event)
+        render_parasite_node(fig, node, event, font_size)
         return
 
     render_parasite_helper(fig, node.left_node, recon, host_lookup, \
-        show_internal_labels, show_freq)
+        show_internal_labels, show_freq, font_size)
     render_parasite_helper(fig, node.right_node, recon, host_lookup, \
-        show_internal_labels, show_freq)
+        show_internal_labels, show_freq, font_size)
     
     render_parasite_branches(fig, node, recon, host_lookup)
-    render_parasite_node(fig, node, event, show_internal_labels, show_freq)
+    render_parasite_node(fig, node, event, font_size, show_internal_labels, show_freq)
 
-def render_parasite_node(fig, node, event, show_internal_labels=False, show_freq=False):
+def render_parasite_node(fig, node, event, font_size, show_internal_labels=False, show_freq=False):
     """
     Renders a single parasite node
     """
@@ -123,12 +129,21 @@ def render_parasite_node(fig, node, event, show_internal_labels=False, show_freq
     fig.dot(node_xy, render_color)
 
     if node.is_leaf:
-        fig.text((node.layout.x + TIP_TEXT_OFFSET[0], node.layout.y - + TIP_TEXT_OFFSET[1]), node.name, render_color)
+        fig.text((node.layout.x + TIP_TEXT_OFFSET[0], node.layout.y - + TIP_TEXT_OFFSET[1]), node.name, render_color, font_size = font_size)
     else:
         fig.text(node_xy, node.name, render_color)
 
     if show_freq:
         fig.text(node_xy, event.freq, render_color)
+
+def calculate_font_size(n):
+    """Calculates the font_size given a number"""
+    output = FONT_SIZE - n
+
+    if output < MIN_FONT_SIZE:
+        return MIN_FONT_SIZE
+    else:
+        return output
 
 def render_parasite_branches(fig, node, recon, host_lookup):
     """ Very basic branch drawing """
