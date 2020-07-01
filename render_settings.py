@@ -1,11 +1,10 @@
 # render_settings.py
 
-VERTICAL_OFFSET = 0.3      # Offset for drawing parasite nodes above host nodes
+VERTICAL_OFFSET = 0.3    # Offset for drawing parasite nodes above host nodes
 COSPECIATION_OFFSET = .4    # Offest for drawing parasite nodes closer to host 
                             # nodes for speciation events
-NODE_OFFSET = 0.4
+NODE_OFFSET = 0.25
 TRACK_OFFSET = 0.3
-#TIP_TEXT_OFFSET = (0.2, 0.05)
 TIP_TEXT_OFFSET = (.3, 0)
 
 
