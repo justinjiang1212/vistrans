@@ -23,6 +23,8 @@ FONTSIZE = 12
 TRANSFERSIZE = 10
 NODESIZE = 8
 
+DEFAULT_ALIGNMENT = 'bottom'
+
 class FigureWrapper:
     """ Class definining plotting methods """
     def __init__(self, title):
@@ -64,12 +66,12 @@ class FigureWrapper:
         x, y = point
         self.axis.plot(x, y, marker, color=col, zorder=DOT_Z_ORDER)
     
-    def text(self, point, text, col=BLACK, font_size=FONTSIZE):
+    def text(self, point, text, col=BLACK, font_size=FONTSIZE, vertical_alignment=DEFAULT_ALIGNMENT ):
         """
         Plot text at s at point p
         """
         x, y = point
-        self.axis.text(x, y, text, color=col, fontsize=font_size)
+        self.axis.text(x, y, text, color=col, fontsize=font_size, verticalalignment=vertical_alignment)
 
     def show(self):
         """ 

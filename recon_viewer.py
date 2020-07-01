@@ -11,7 +11,7 @@ from render_settings import LEAF_NODE_COLOR, COSPECIATION_NODE_COLOR, \
     DUPLICATION_NODE_COLOR, TRANSFER_NODE_COLOR, HOST_NODE_COLOR, HOST_EDGE_COLOR, \
     PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET, NODE_OFFSET, \
     TIP_TEXT_OFFSET, FONT_SIZE, MIN_FONT_SIZE, LEAF_NODE_SHAPE, COSPECIATION_NODE_SHAPE, \
-        DUPLICATION_NODE_SHAPE, TRANSFER_NODE_SHAPE
+        DUPLICATION_NODE_SHAPE, TRANSFER_NODE_SHAPE, TIP_ALIGNMENT
 
 def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, show_freq=False):
     """ Renders a reconciliation using matplotlib
@@ -57,7 +57,7 @@ def render_host_helper(fig, node, show_internal_labels, font_size):
     node_xy = (node_x, node_y)
     if node.is_leaf:
         fig.dot(node_xy)
-        fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name, font_size = font_size)
+        fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name, font_size = font_size, vertical_alignment=TIP_ALIGNMENT)
     else:
         fig.dot(node_xy, col = HOST_NODE_COLOR)  # Render host node
         if show_internal_labels:
@@ -130,7 +130,7 @@ def render_parasite_node(fig, node, event, font_size, show_internal_labels=False
     fig.dot(node_xy, col = render_color, marker = render_shape)
 
     if node.is_leaf:
-        fig.text((node.layout.x + TIP_TEXT_OFFSET[0], node.layout.y - + TIP_TEXT_OFFSET[1]), node.name, render_color, font_size = font_size)
+        fig.text((node.layout.x + TIP_TEXT_OFFSET[0], node.layout.y - + TIP_TEXT_OFFSET[1]), node.name, render_color, font_size = font_size, vertical_alignment=TIP_ALIGNMENT)
     else:
         fig.text(node_xy, node.name, render_color)
 
@@ -214,6 +214,7 @@ def render_cospeciation_branch(node, host_lookup, recon, fig):
         host_node.layout.lower_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
         stop_row = host_node.left_node.layout.row
+        host_node.layout.h_track += 1
         connect_child_to_parent(node, left_node, host_lookup, recon, fig, stop_row=stop_row)
 
     #Draw Right node
@@ -222,6 +223,7 @@ def render_cospeciation_branch(node, host_lookup, recon, fig):
         host_node.layout.upper_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
         stop_row = host_node.right_node.layout.row
+        host_node.layout.h_track += 1
         connect_child_to_parent(node, right_node, host_lookup, recon, fig, stop_row=stop_row)
 
 #TODO change this name
@@ -335,9 +337,6 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig, stop_row=
 
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
     fig.line(mid_xy, current_xy, PARASITE_EDGE_COLOR)
-
-    if stop_row:
-        host_node.iter_track("H")
 
     
 
