@@ -270,7 +270,7 @@ def render_cospeciation_branch(node, host_lookup, recon, fig):
         render_curved_line_to(node_xy, left_xy, fig)
         host_node.layout.lower_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
-        stop_row = host_node.left_node.layout.row
+        stop_row = left_host_node.layout.row
         host_node.layout.h_track += 1
         connect_child_to_parent(node, left_node, host_lookup, recon, fig, stop_row=stop_row)
 
@@ -279,7 +279,7 @@ def render_cospeciation_branch(node, host_lookup, recon, fig):
         render_curved_line_to(node_xy, right_xy, fig)
         host_node.layout.upper_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
-        stop_row = host_node.right_node.layout.row
+        stop_row = right_host_node.layout.row
         host_node.layout.h_track += 1
         connect_child_to_parent(node, right_node, host_lookup, recon, fig, stop_row=stop_row)
 
@@ -338,13 +338,13 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig, stop_row=
     mapping_node = recon.mapping_of(child_node.name)
     host_node = host_lookup[mapping_node.host]
     
-    if not(stop_row):
+    if stop_row == None:
         stop_row = node.layout.row
 
     current_xy = (child_node.layout.x, child_node.layout.y)
 
 
-    while host_node.layout.row != stop_row:
+    while host_node.layout.row != stop_row and host_node.parent_node:
         parent_node = host_node.parent_node
         if parent_node.layout.row < host_node.layout.row:
             v_track = parent_node.iter_track("UV")
