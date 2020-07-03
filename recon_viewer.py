@@ -69,12 +69,12 @@ def render_host_helper(fig, node, show_internal_labels, font_size):
     node_x, node_y = node.layout.x, node.layout.y
     node_xy = (node_x, node_y)
     if node.is_leaf:
-        fig.dot(node_xy)
+        fig.dot(node_xy, col = HOST_NODE_COLOR)
         fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name, font_size = font_size, vertical_alignment=TIP_ALIGNMENT)
     else:
         fig.dot(node_xy, col = HOST_NODE_COLOR)  # Render host node
         if show_internal_labels:
-            fig.text(node_xy, node.name)
+            fig.text(node_xy, node.name, font_size = font_size)
         left_x, left_y = node.left_node.layout.x, node.left_node.layout.y
         right_x, right_y = node.right_node.layout.x, node.right_node.layout.y
         fig.line(node_xy, (node_x, left_y), HOST_EDGE_COLOR)
@@ -131,14 +131,18 @@ def render_parasite_helper(fig, node, recon, host_lookup, show_internal_labels, 
     # host_x = host_node.layout.x
     host_y = host_node.layout.y
     node.set_layout(row=host_row, x=node.layout.col, y=host_y + VERTICAL_OFFSET)
-    
+
     if event.event_type is EventType.COSPECIATION:
         node.layout.x += COSPECIATION_OFFSET
         node.layout.y += host_node.iter_track("C") * NODE_OFFSET
     if event.event_type is EventType.TIPTIP:
         node.layout.y += host_node.iter_track("T") * NODE_OFFSET
+
+    if node.parent_node:
+        if node.parent_node.layout.row == node.layout.row:
+            node.parent_node.set_layout(y=node.layout.y)
+
     # Render parasite node and recurse if not a leaf
-    
     if node.is_leaf:
         render_parasite_node(fig, node, event, font_size)
         return
@@ -169,10 +173,10 @@ def render_parasite_node(fig, node, event, font_size, show_internal_labels=False
     if node.is_leaf:
         fig.text((node.layout.x + TIP_TEXT_OFFSET[0], node.layout.y - + TIP_TEXT_OFFSET[1]), node.name, render_color, font_size = font_size, vertical_alignment=TIP_ALIGNMENT)
     elif show_internal_labels:
-        fig.text(node_xy, node.name, render_color)
+        fig.text(node_xy, node.name, render_color, font_size = font_size)
 
     if show_freq:
-        fig.text(node_xy, event.freq, render_color)
+        fig.text(node_xy, event.freq, render_color, font_size = font_size)
 
 def calculate_font_size(n):
     """
@@ -211,7 +215,16 @@ def render_parasite_branches(fig, node, recon, host_lookup):
         connect_children(node, host_lookup, recon, fig)
 
     if event.event_type is EventType.TRANSFER:
-        connect_child_to_parent(node, node.left_node, host_lookup, recon, fig)
+        
+        #if node.right_node.layout.row == node.layout.row:
+        #    render_transfer_branch(node_xy, left_xy, fig, node, host_lookup, recon)
+        #    connect_child_to_parent(node, node.right_node, host_lookup, recon, fig)
+        #else:
+        #    render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon)
+        #    connect_child_to_parent(node, node.left_node, host_lookup, recon, fig)
+
+        print('Node Name: ' + node.name + ' Left Child: ' + node.left_node.name + ' Right Child: ' + node.right_node.name)
+
         render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon)
                 
     if event.event_type is EventType.LOSS: 
@@ -264,13 +277,12 @@ def render_cospeciation_branch(node, host_lookup, recon, fig):
 
     right_mapping_node = recon.mapping_of(right_node.name)
     right_host_node = host_lookup[right_mapping_node.host]
-    
     #Draw left node
     if host_node.left_node.name == left_host_node.name:
         render_curved_line_to(node_xy, left_xy, fig)
         host_node.layout.lower_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
-        stop_row = left_host_node.layout.row
+        stop_row = host_node.left_node.layout.row
         host_node.layout.h_track += 1
         connect_child_to_parent(node, left_node, host_lookup, recon, fig, stop_row=stop_row)
 
@@ -279,7 +291,7 @@ def render_cospeciation_branch(node, host_lookup, recon, fig):
         render_curved_line_to(node_xy, right_xy, fig)
         host_node.layout.upper_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
-        stop_row = right_host_node.layout.row
+        stop_row = host_node.right_node.layout.row
         host_node.layout.h_track += 1
         connect_child_to_parent(node, right_node, host_lookup, recon, fig, stop_row=stop_row)
 
@@ -338,13 +350,16 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig, stop_row=
     mapping_node = recon.mapping_of(child_node.name)
     host_node = host_lookup[mapping_node.host]
     
+    
+
     if stop_row == None:
         stop_row = node.layout.row
-
+    
     current_xy = (child_node.layout.x, child_node.layout.y)
 
 
     while host_node.layout.row != stop_row and host_node.parent_node:
+        
         parent_node = host_node.parent_node
         if parent_node.layout.row < host_node.layout.row:
             v_track = parent_node.iter_track("UV")

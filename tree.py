@@ -43,10 +43,10 @@ class Node:
     def set_layout(self, row=None, col=None, x=None, y=None):
         """Sets the layout"""
         layout = self.layout
-        layout.row = row if row else layout.row
-        layout.col = col if col else layout.col
-        layout.x = x if x else layout.x
-        layout.y = y if y else layout.y
+        layout.row = row if row != None else layout.row
+        layout.col = col if col != None else layout.col
+        layout.x = x if x != None else layout.x
+        layout.y = y if y != None else layout.y
 
     def iter_track(self, track):
         """updates track number and returns previous track of host node"""
