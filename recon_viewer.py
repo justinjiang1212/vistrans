@@ -150,9 +150,11 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
         render_parasite_node(fig, node, event, font_size)
         return
 
-    render_parasite_helper(fig, node.left_node, recon, host_lookup, \
+    left_node, right_node = get_children(node, recon, parasite_lookup)
+
+    render_parasite_helper(fig, left_node, recon, host_lookup, \
         parasite_lookup, show_internal_labels, show_freq, font_size)
-    render_parasite_helper(fig, node.right_node, recon, host_lookup, \
+    render_parasite_helper(fig, right_node, recon, host_lookup, \
         parasite_lookup, show_internal_labels, show_freq, font_size)
     
     render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup)
@@ -271,10 +273,10 @@ def render_cospeciation_branch(node, host_lookup, parasite_lookup, recon, fig):
     event = recon.event_of(mapping_node)
     host_node = host_lookup[mapping_node.host]
 
-    left_mapping_node = event.left
+    left_mapping_node = recon.mapping_of(left_node.name)
     left_host_node = host_lookup[left_mapping_node.host]
 
-    right_mapping_node = event.right
+    right_mapping_node = recon.mapping_of(right_node.name)
     right_host_node = host_lookup[right_mapping_node.host]
     #Draw left node
     if host_node.left_node.name == left_host_node.name:

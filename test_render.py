@@ -6,7 +6,7 @@ from recon_viewer import render
 
 
 recon_input = input_generator.generate_random_recon_input(12)
-recongraph = recon_input.reconcile(1, 1, 1)
+recongraph = recon_input.reconcile(10, 10, 1)
 reconciliation = recongraph.median()
 
 
