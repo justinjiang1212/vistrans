@@ -48,7 +48,7 @@ class FigureWrapper:
                               colors = [LOSS_EDGE_COLOR], label='Loss')
                           ] 
         
-        self.axis.legend(handles=legend_elements, loc='lower left', fontsize = FONTSIZE)
+        self.axis.legend(handles=legend_elements, loc='best', fontsize = FONTSIZE)
         
 
     def line(self, point_1, point_2, col=BLACK, linestyle='-', marker=None):
