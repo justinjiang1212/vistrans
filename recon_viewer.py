@@ -30,7 +30,8 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
 
     render_host(fig, host_tree, show_internal_labels, font_size)
     host_lookup = host_tree.name_to_node_dict()
-    render_parasite(fig, parasite_tree, recon, host_lookup, show_internal_labels, show_freq, font_size)
+    parasite_lookup = parasite_tree.name_to_node_dict()
+    render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, font_size)
     fig.show()
 
 
@@ -69,12 +70,12 @@ def render_host_helper(fig, node, show_internal_labels, font_size):
     node_x, node_y = node.layout.x, node.layout.y
     node_xy = (node_x, node_y)
     if node.is_leaf:
-        fig.dot(node_xy)
+        fig.dot(node_xy, col = HOST_NODE_COLOR)
         fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name, font_size = font_size, vertical_alignment=TIP_ALIGNMENT)
     else:
         fig.dot(node_xy, col = HOST_NODE_COLOR)  # Render host node
         if show_internal_labels:
-            fig.text(node_xy, node.name)
+            fig.text(node_xy, node.name, font_size = font_size)
         left_x, left_y = node.left_node.layout.x, node.left_node.layout.y
         right_x, right_y = node.right_node.layout.x, node.right_node.layout.y
         fig.line(node_xy, (node_x, left_y), HOST_EDGE_COLOR)
@@ -84,27 +85,29 @@ def render_host_helper(fig, node, show_internal_labels, font_size):
         render_host_helper(fig, node.left_node, show_internal_labels, font_size)
         render_host_helper(fig, node.right_node, show_internal_labels, font_size)
 
-def render_parasite(fig, parasite_tree, recon, host_lookup, show_internal_labels, show_freq, font_size):
+def render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, font_size):
     """
     Render the parasite tree.
     :param fig: Figure object that visualizes trees using MatplotLib
     :param parasite_tree: Parasite tree represented as a Tree object
     :param recon: Reconciliation object
     :param host_lookup: Dictionary with host node names as the key and host node objects as the values
+    :param parasite_lookup: Dictionary with parasite node names as the key and parasite node objects as the values
     :param show_internal_labels: Boolean that determines whether or not the internal labels are shown
     :param show_freq: Boolean that determines wheter or not the frequencies are shown
     :param font_size: Font size for text
     """
     root = parasite_tree.root_node
-    render_parasite_helper(fig, root, recon, host_lookup, show_internal_labels, show_freq, font_size)
+    render_parasite_helper(fig, root, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, font_size)
 
-def render_parasite_helper(fig, node, recon, host_lookup, show_internal_labels, show_freq, font_size):
+def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, font_size):
     """
     Helper function for rendering the parasite tree.
     :param fig: Figure object that visualizes trees using MatplotLib
     :param node: Node object
     :param recon: Reconciliation object
     :param host_lookup: Dictionary with host node names as the key and host node objects as the values
+    :param parasite_lookup: Dictionary with parasite node names as the key and parasite node objects as the values
     :param show_internal_labels: Boolean that determines whether or not the internal labels are shown
     :param show_freq: Boolean that determines wheter or not the frequencies are shown
     :param font_size: Font size for text
@@ -131,24 +134,28 @@ def render_parasite_helper(fig, node, recon, host_lookup, show_internal_labels, 
     # host_x = host_node.layout.x
     host_y = host_node.layout.y
     node.set_layout(row=host_row, x=node.layout.col, y=host_y + VERTICAL_OFFSET)
-    
+
     if event.event_type is EventType.COSPECIATION:
         node.layout.x += COSPECIATION_OFFSET
         node.layout.y += host_node.iter_track("C") * NODE_OFFSET
     if event.event_type is EventType.TIPTIP:
         node.layout.y += host_node.iter_track("T") * NODE_OFFSET
+
+    if node.parent_node:
+        if node.parent_node.layout.row == node.layout.row:
+            node.parent_node.set_layout(y=node.layout.y)
+
     # Render parasite node and recurse if not a leaf
-    
     if node.is_leaf:
         render_parasite_node(fig, node, event, font_size)
         return
 
     render_parasite_helper(fig, node.left_node, recon, host_lookup, \
-        show_internal_labels, show_freq, font_size)
+        parasite_lookup, show_internal_labels, show_freq, font_size)
     render_parasite_helper(fig, node.right_node, recon, host_lookup, \
-        show_internal_labels, show_freq, font_size)
+        parasite_lookup, show_internal_labels, show_freq, font_size)
     
-    render_parasite_branches(fig, node, recon, host_lookup)
+    render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup)
     render_parasite_node(fig, node, event, font_size, show_internal_labels, show_freq)
 
 def render_parasite_node(fig, node, event, font_size, show_internal_labels=False, show_freq=False):
@@ -169,10 +176,10 @@ def render_parasite_node(fig, node, event, font_size, show_internal_labels=False
     if node.is_leaf:
         fig.text((node.layout.x + TIP_TEXT_OFFSET[0], node.layout.y - + TIP_TEXT_OFFSET[1]), node.name, render_color, font_size = font_size, vertical_alignment=TIP_ALIGNMENT)
     elif show_internal_labels:
-        fig.text(node_xy, node.name, render_color)
+        fig.text(node_xy, node.name, render_color, font_size = font_size)
 
     if show_freq:
-        fig.text(node_xy, event.freq, render_color)
+        fig.text(node_xy, event.freq, render_color, font_size = font_size)
 
 def calculate_font_size(n):
     """
@@ -187,38 +194,41 @@ def calculate_font_size(n):
     else:
         return output
 
-def render_parasite_branches(fig, node, recon, host_lookup):
+def render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup):
     """
     Very basic branch drawing
     :param fig: Figure object that visualizes trees using MatplotLib
     :param node: Node object
     :param recon: Reconciliation object
     :param host_lookup: Dictionary with host node names as the key and host node objects as the values
+    :param parasite_lookup: Dictionary with parasite node names as the key and parasite node objects as the values
     """
     node_xy = (node.layout.x, node.layout.y)
 
-    left_xy = (node.left_node.layout.x, node.left_node.layout.y)
-    right_xy = (node.right_node.layout.x, node.right_node.layout.y)
+    left_node, right_node = get_children(node, recon, parasite_lookup)
+
+    left_xy = (left_node.layout.x, left_node.layout.y)
+    right_xy = (right_node.layout.x, right_node.layout.y)
     
 
     mapping_node = recon.mapping_of(node.name)
     event = recon.event_of(mapping_node)
 
     if event.event_type is EventType.COSPECIATION:
-        render_cospeciation_branch(node, host_lookup, recon, fig)
+        render_cospeciation_branch(node, host_lookup, parasite_lookup, recon, fig)
         
     if event.event_type is EventType.DUPLICATION:
-        connect_children(node, host_lookup, recon, fig)
+        connect_children(node, host_lookup, parasite_lookup, recon, fig)
 
     if event.event_type is EventType.TRANSFER:
-        connect_child_to_parent(node, node.left_node, host_lookup, recon, fig)
         render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon)
+        connect_child_to_parent(node, left_node, host_lookup, recon, fig)
                 
     if event.event_type is EventType.LOSS: 
         render_loss_branch(node_xy, left_xy, fig)
 
 
-def connect_children(node, host_lookup, recon, fig):
+def connect_children(node, host_lookup, parasite_lookup, recon, fig):
     """
     Connects the children of a node
     :param node: Node object
@@ -226,8 +236,9 @@ def connect_children(node, host_lookup, recon, fig):
     :param recon: Reconciliation object
     :param fig: Figure object that visualizes trees using MatplotLib
     """
-    connect_child_to_parent(node, node.left_node, host_lookup, recon, fig)
-    connect_child_to_parent(node, node.right_node, host_lookup, recon, fig)
+    left_node, right_node = get_children(node, recon, parasite_lookup)
+    connect_child_to_parent(node, left_node, host_lookup, recon, fig)
+    connect_child_to_parent(node, right_node, host_lookup, recon, fig)
 
 def render_loss_branch(node_xy, next_xy, fig):
     """
@@ -241,36 +252,36 @@ def render_loss_branch(node_xy, next_xy, fig):
     fig.line(node_xy, mid_xy, LOSS_EDGE_COLOR, linestyle='--')
     fig.line(mid_xy, next_xy, PARASITE_EDGE_COLOR)
 
-def render_cospeciation_branch(node, host_lookup, recon, fig):
+def render_cospeciation_branch(node, host_lookup, parasite_lookup, recon, fig):
     """
     Renders the a cospeciation branch.
     :param node: Node object
     :param host_lookup: Dictionary with host node names as the key and host node objects as the values
+    :param parasite_lookup: Dictionary with parasite node names as the key and parasite node objects as the values
     :param recon: Reconciliation object
     :param fig: Figure object that visualizes trees using MatplotLib
     """
-    left_node = node.left_node
-    right_node = node.right_node
+    left_node, right_node = get_children(node, recon, parasite_lookup)
 
     node_xy = (node.layout.x, node.layout.y)
     left_xy = (left_node.layout.x, left_node.layout.y)
     right_xy = (right_node.layout.x, right_node.layout.y)
 
     mapping_node = recon.mapping_of(node.name)
+    event = recon.event_of(mapping_node)
     host_node = host_lookup[mapping_node.host]
 
-    left_mapping_node = recon.mapping_of(left_node.name)
+    left_mapping_node = event.left
     left_host_node = host_lookup[left_mapping_node.host]
 
-    right_mapping_node = recon.mapping_of(right_node.name)
+    right_mapping_node = event.right
     right_host_node = host_lookup[right_mapping_node.host]
-    
     #Draw left node
     if host_node.left_node.name == left_host_node.name:
         render_curved_line_to(node_xy, left_xy, fig)
         host_node.layout.lower_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
-        stop_row = left_host_node.layout.row
+        stop_row = host_node.left_node.layout.row
         host_node.layout.h_track += 1
         connect_child_to_parent(node, left_node, host_lookup, recon, fig, stop_row=stop_row)
 
@@ -279,9 +290,31 @@ def render_cospeciation_branch(node, host_lookup, recon, fig):
         render_curved_line_to(node_xy, right_xy, fig)
         host_node.layout.upper_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
-        stop_row = right_host_node.layout.row
+        stop_row = host_node.right_node.layout.row
         host_node.layout.h_track += 1
         connect_child_to_parent(node, right_node, host_lookup, recon, fig, stop_row=stop_row)
+
+
+def get_children(node, recon, parasite_lookup):
+    """
+    Gets the children of a node in the order they appear in the mapping node.
+    :param node: Node object
+    :param recon: Reconciliation Object
+    :param parasite_lookup: Dictionary with parasite node names as the key and parasite node objects as the values
+    :return A tuple consisting of the left node and right node
+    """
+    mapping_node = recon.mapping_of(node.name)
+    event = recon.event_of(mapping_node)
+    left_mapping_node = event.left
+    right_mapping_node = event.right
+    left_node_name = left_mapping_node.parasite
+    right_node_name = right_mapping_node.parasite
+
+    left_node = parasite_lookup[left_node_name]
+    right_node = parasite_lookup[right_node_name]
+
+    return left_node, right_node
+
 
 def render_curved_line_to(node_xy, other_xy, fig):
     """
@@ -338,13 +371,16 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig, stop_row=
     mapping_node = recon.mapping_of(child_node.name)
     host_node = host_lookup[mapping_node.host]
     
+    
+
     if stop_row == None:
         stop_row = node.layout.row
-
+    
     current_xy = (child_node.layout.x, child_node.layout.y)
 
 
     while host_node.layout.row != stop_row and host_node.parent_node:
+        
         parent_node = host_node.parent_node
         if parent_node.layout.row < host_node.layout.row:
             v_track = parent_node.iter_track("UV")
