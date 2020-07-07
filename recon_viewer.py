@@ -191,8 +191,8 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
     node.set_layout(row=host_row, x=node.layout.col, y=host_y + host_node.layout.offset)
 
     if event.event_type is EventType.COSPECIATION:
-        node.layout.x += COSPECIATION_OFFSET
-        node.layout.y += host_node.iter_track("C") * host_node.layout.offset
+        #node.layout.x += COSPECIATION_OFFSET
+        node.layout.y += host_node.iter_track("H") * host_node.layout.offset
     if event.event_type is EventType.TIPTIP:
         node.layout.y += host_node.iter_track("H") * host_node.layout.offset
 
@@ -211,7 +211,10 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
     
     if node.layout.row == left_node.layout.row:
         node.set_layout(y=left_node.layout.y)
+    elif event.event_type is EventType.TRANSFER:
+        node.layout.y = host_node.layout.y + host_node.layout.h_track * host_node.layout.offset
 
+    
     render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup)
     render_parasite_node(fig, node, event, font_size, show_internal_labels, show_freq)
 
@@ -446,8 +449,8 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig, stop_row=
         h_track = parent_node.iter_track("H")
 
 
-        sub_parent_xy = (parent_node.layout.x - (TRACK_OFFSET * v_track) - VERTICAL_OFFSET, \
-            parent_node.layout.y + (TRACK_OFFSET * h_track) + VERTICAL_OFFSET)
+        sub_parent_xy = (parent_node.layout.x - (TRACK_OFFSET * v_track), \
+            parent_node.layout.y + (TRACK_OFFSET * h_track))
 
         render_loss_branch(sub_parent_xy, current_xy, fig)
 

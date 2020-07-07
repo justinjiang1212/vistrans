@@ -78,9 +78,9 @@ class NodeLayout:
         self.col = None         # float: logical position of this Node in rendering
         self.x = None           # int: x-coordinate for rendering
         self.y = None           # int: y-coordinate for rendering
-        self.upper_v_track = 0  # int: track number for upper vertical host edges
-        self.lower_v_track = 0  # int: track number for lower vertical host edges
-        self.h_track = 0        # int: track number for horizontal host edges
+        self.upper_v_track = 1  # int: track number for upper vertical host edges
+        self.lower_v_track = 1  # int: track number for lower vertical host edges
+        self.h_track = 1        # int: track number for horizontal host edges
         self.speciation_track = 0
         self.node_count = 0
         self.offset = 0
