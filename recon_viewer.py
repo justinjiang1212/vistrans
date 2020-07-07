@@ -27,12 +27,46 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
 
     num_tips = len(host_tree.leaf_list) + len(parasite_tree.leaf_list)
     font_size = calculate_font_size(num_tips)
-
+    
+    #Render Host Tree
     render_host(fig, host_tree, show_internal_labels, font_size)
     host_lookup = host_tree.name_to_node_dict()
     parasite_lookup = parasite_tree.name_to_node_dict()
+
+    #Populate Host Nodes with offsets
+    root = parasite_tree.root_node
+    populate_host_tracks(root, recon, host_lookup)
+    set_offsets(host_tree)
+
+    #Render Parasite Tree
     render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, font_size)
     fig.show()
+
+
+def set_offsets(tree):
+    """
+    Populates the nodes of a Tree with an offset
+    :param tree: 
+    """
+
+    pos_dict = tree.pos_dict
+    
+    for node in tree.postorder_list:
+        y_1 = None
+        y_0 = node.layout.row
+        for logical_pos in pos_dict:
+            if node.is_leaf:
+                if y_0 < logical_pos[0] and node.layout.col <= logical_pos[1]:
+                    if y_1 == None or y_1 > logical_pos[0]:
+                        y_1 = logical_pos[0]
+            elif y_0 < logical_pos[0] and node.layout.col > logical_pos[1]:
+                if y_1 == None or y_1 > logical_pos[0]:
+                    y_1 = logical_pos[0]
+        
+        if y_1 == None or node.layout.node_count == 0:
+            node.layout.offset = TRACK_OFFSET
+        else:
+            node.layout.offset = abs(y_0 - y_1) / (node.layout.node_count + 1) - VERTICAL_OFFSET / (node.layout.node_count)
 
 
 #TODO Fix Bug
@@ -51,7 +85,7 @@ def render_host(fig, host_tree, show_internal_labels, font_size):
     set_host_node_layout(host_tree)
     root = host_tree.root_node
     draw_host_handle(fig, root)
-    render_host_helper(fig, root, show_internal_labels, font_size)
+    render_host_helper(fig, root, show_internal_labels, font_size, host_tree)
 
 def draw_host_handle(fig, root):
     """
@@ -60,13 +94,15 @@ def draw_host_handle(fig, root):
     """
     fig.line((0, root.layout.y), (root.layout.x, root.layout.y), HOST_EDGE_COLOR)
 
-def render_host_helper(fig, node, show_internal_labels, font_size):
+def render_host_helper(fig, node, show_internal_labels, font_size, host_tree):
     """
     Helper function for rendering the host tree.
     :param node: node object
     :param show_internal_labels: Boolean that determines whether or not the internal labels are shown
     :param font_size: Font size for text
+    :param host_tree: Tree object representing a Host Tree
     """
+    host_tree.pos_dict[(node.layout.row, node.layout.col)] = node
     node_x, node_y = node.layout.x, node.layout.y
     node_xy = (node_x, node_y)
     if node.is_leaf:
@@ -82,8 +118,8 @@ def render_host_helper(fig, node, show_internal_labels, font_size):
         fig.line(node_xy, (node_x, right_y), HOST_EDGE_COLOR)
         fig.line((node_x, left_y), (left_x, left_y), HOST_EDGE_COLOR)
         fig.line((node_x, right_y), (right_x, right_y), HOST_EDGE_COLOR)
-        render_host_helper(fig, node.left_node, show_internal_labels, font_size)
-        render_host_helper(fig, node.right_node, show_internal_labels, font_size)
+        render_host_helper(fig, node.left_node, show_internal_labels, font_size, host_tree)
+        render_host_helper(fig, node.right_node, show_internal_labels, font_size, host_tree)
 
 def render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, font_size):
     """
@@ -99,6 +135,25 @@ def render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, sho
     """
     root = parasite_tree.root_node
     render_parasite_helper(fig, root, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, font_size)
+
+def populate_host_tracks(node, recon, host_lookup):
+    """
+    :param node: Node object
+    :param recon: Reconciliation object
+    :param host_lookup: Dictionary with host node names as the key and host node objects as the values
+    """
+    mapping_node = recon.mapping_of(node.name)
+    event = recon.event_of(mapping_node)
+    host_name = mapping_node.host
+    host_node = host_lookup[host_name]
+
+    if not(event.event_type is EventType.DUPLICATION or event.event_type is EventType.TRANSFER):
+        host_node.update_count()
+    
+    if not(node.is_leaf):
+        populate_host_tracks(node.left_node, recon, host_lookup)
+        populate_host_tracks(node.right_node, recon, host_lookup)
+
 
 def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, font_size):
     """
@@ -133,17 +188,13 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
     # host_col = host_node.layout.col
     # host_x = host_node.layout.x
     host_y = host_node.layout.y
-    node.set_layout(row=host_row, x=node.layout.col, y=host_y + VERTICAL_OFFSET)
+    node.set_layout(row=host_row, x=node.layout.col, y=host_y + host_node.layout.offset)
 
     if event.event_type is EventType.COSPECIATION:
         node.layout.x += COSPECIATION_OFFSET
-        node.layout.y += host_node.iter_track("C") * NODE_OFFSET
+        node.layout.y += host_node.iter_track("C") * host_node.layout.offset
     if event.event_type is EventType.TIPTIP:
-        node.layout.y += host_node.iter_track("T") * NODE_OFFSET
-
-    if node.parent_node:
-        if node.parent_node.layout.row == node.layout.row:
-            node.parent_node.set_layout(y=node.layout.y)
+        node.layout.y += host_node.iter_track("H") * host_node.layout.offset
 
     # Render parasite node and recurse if not a leaf
     if node.is_leaf:
@@ -157,6 +208,10 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
     render_parasite_helper(fig, right_node, recon, host_lookup, \
         parasite_lookup, show_internal_labels, show_freq, font_size)
     
+    
+    if node.layout.row == left_node.layout.row:
+        node.set_layout(y=left_node.layout.y)
+
     render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup)
     render_parasite_node(fig, node, event, font_size, show_internal_labels, show_freq)
 

@@ -5,7 +5,7 @@ from empress.miscs import input_generator
 from recon_viewer import render
 
 
-recon_input = input_generator.generate_random_recon_input(12)
+recon_input = input_generator.generate_random_recon_input(15)
 recongraph = recon_input.reconcile(10, 10, 1)
 reconciliation = recongraph.median()
 

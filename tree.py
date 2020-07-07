@@ -64,10 +64,9 @@ class Node:
         if track == "C":
             self.layout.speciation_track += 1
             return self.layout.speciation_track - 1
-        if track == "T":
-            self.layout.tip_track += 1
-            return self.layout.tip_track - 1
-        
+    
+    def update_count(self):
+        self.layout.node_count += 1 
 
 
 class NodeLayout:
@@ -83,7 +82,8 @@ class NodeLayout:
         self.lower_v_track = 0  # int: track number for lower vertical host edges
         self.h_track = 0        # int: track number for horizontal host edges
         self.speciation_track = 0
-        self.tip_track = 0
+        self.node_count = 0
+        self.offset = 0
 
 
 class Tree:
@@ -93,6 +93,7 @@ class Tree:
     def __init__(self):
         self.root_node = None       # Node:  Root Node of the Tree
         self.tree_type = None       # TreeType: HOST or PARASITE
+        self.pos_dict = {}
 
     # The @property decorator allows this to be called as .leaf_list rather than .leaf_list()
     @property
