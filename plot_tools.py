@@ -21,11 +21,13 @@ from render_settings import COSPECIATION_NODE_COLOR, \
 
 
 LINEWIDTH = 2
+TEXTWIDTH = .3
 LINE_Z_ORDER = 0
 DOT_Z_ORDER = 1
-FONTSIZE = 12
+FONTSIZE = 6
 TRANSFERSIZE = 10
 NODESIZE = 8
+NODEFONTSIZE = 0.4
 
 DEFAULT_ALIGNMENT = 'bottom'
 
@@ -75,10 +77,10 @@ class FigureWrapper:
         """
         x, y = point
 
-        tp = TextPath(point, text, size=.4)
-        self.fig.gca().add_patch(PathPatch(tp, color=col))
+        tp = TextPath(point, text, size= NODEFONTSIZE)
+        self.fig.gca().add_patch(PathPatch(tp, color=col, linewidth = TEXTWIDTH))
 
-        #self.axis.text(x, y, text, color=col, fontsize=font_size, verticalalignment=vertical_alignment)
+        #elf.axis.text(x, y, text, color=col, fontsize=font_size, verticalalignment=vertical_alignment)
 
     def show(self):
         """ 
