@@ -9,6 +9,9 @@ Plotting tools using matplotlib
 from matplotlib import pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.collections import LineCollection
+from matplotlib.textpath import TextPath
+from matplotlib.patches import PathPatch
+
 
 from render_settings import COSPECIATION_NODE_COLOR, \
     DUPLICATION_NODE_COLOR, TRANSFER_NODE_COLOR, HOST_NODE_COLOR, \
@@ -71,7 +74,11 @@ class FigureWrapper:
         Plot text at s at point p
         """
         x, y = point
-        self.axis.text(x, y, text, color=col, fontsize=font_size, verticalalignment=vertical_alignment)
+
+        tp = TextPath(point, text, size=.4)
+        self.fig.gca().add_patch(PathPatch(tp, color=col))
+
+        #self.axis.text(x, y, text, color=col, fontsize=font_size, verticalalignment=vertical_alignment)
 
     def show(self):
         """ 
