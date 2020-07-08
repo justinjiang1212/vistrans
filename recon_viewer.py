@@ -26,10 +26,11 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
     fig = plot_tools.FigureWrapper("Reconciliation")
 
     num_tips = len(host_tree.leaf_list) + len(parasite_tree.leaf_list)
-    font_size = calculate_font_size(num_tips)
+    num_nodes = len(host_tree.postorder_list) + len(parasite_tree.postorder_list)
+    tip_font_size, internal_font_size = calculate_font_size(num_tips, num_nodes)
     
     #Render Host Tree
-    render_host(fig, host_tree, show_internal_labels, font_size)
+    render_host(fig, host_tree, show_internal_labels, tip_font_size, internal_font_size)
     host_lookup = host_tree.name_to_node_dict()
     parasite_lookup = parasite_tree.name_to_node_dict()
 
@@ -39,7 +40,7 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
     set_offsets(host_tree)
 
     #Render Parasite Tree
-    render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, font_size)
+    render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, tip_font_size, internal_font_size)
     fig.show()
 
 
@@ -75,7 +76,7 @@ def give_childeren_parents(host_tree):
         if node.right_node:
             node.right_node.parent_node = node
 
-def render_host(fig, host_tree, show_internal_labels, font_size):
+def render_host(fig, host_tree, show_internal_labels, tip_font_size, internal_font_size):
     """
     Renders the host tree
     :param host_tree: Host tree represented as a Tree object
@@ -85,7 +86,7 @@ def render_host(fig, host_tree, show_internal_labels, font_size):
     set_host_node_layout(host_tree)
     root = host_tree.root_node
     draw_host_handle(fig, root)
-    render_host_helper(fig, root, show_internal_labels, font_size, host_tree)
+    render_host_helper(fig, root, show_internal_labels, tip_font_size, internal_font_size, host_tree)
 
 def draw_host_handle(fig, root):
     """
@@ -94,7 +95,7 @@ def draw_host_handle(fig, root):
     """
     fig.line((0, root.layout.y), (root.layout.x, root.layout.y), HOST_EDGE_COLOR)
 
-def render_host_helper(fig, node, show_internal_labels, font_size, host_tree):
+def render_host_helper(fig, node, show_internal_labels, tip_font_size, internal_font_size, host_tree):
     """
     Helper function for rendering the host tree.
     :param node: node object
@@ -107,21 +108,21 @@ def render_host_helper(fig, node, show_internal_labels, font_size, host_tree):
     node_xy = (node_x, node_y)
     if node.is_leaf:
         fig.dot(node_xy, col = HOST_NODE_COLOR)
-        fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name, font_size = font_size, vertical_alignment=TIP_ALIGNMENT)
+        fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name, font_size = tip_font_size, vertical_alignment=TIP_ALIGNMENT)
     else:
         fig.dot(node_xy, col = HOST_NODE_COLOR)  # Render host node
         if show_internal_labels:
-            fig.text(node_xy, node.name, font_size = font_size)
+            fig.text(node_xy, node.name, font_size = internal_font_size)
         left_x, left_y = node.left_node.layout.x, node.left_node.layout.y
         right_x, right_y = node.right_node.layout.x, node.right_node.layout.y
         fig.line(node_xy, (node_x, left_y), HOST_EDGE_COLOR)
         fig.line(node_xy, (node_x, right_y), HOST_EDGE_COLOR)
         fig.line((node_x, left_y), (left_x, left_y), HOST_EDGE_COLOR)
         fig.line((node_x, right_y), (right_x, right_y), HOST_EDGE_COLOR)
-        render_host_helper(fig, node.left_node, show_internal_labels, font_size, host_tree)
-        render_host_helper(fig, node.right_node, show_internal_labels, font_size, host_tree)
+        render_host_helper(fig, node.left_node, show_internal_labels, tip_font_size, internal_font_size, host_tree)
+        render_host_helper(fig, node.right_node, show_internal_labels, tip_font_size, internal_font_size, host_tree)
 
-def render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, font_size):
+def render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, tip_font_size, internal_font_size):
     """
     Render the parasite tree.
     :param fig: Figure object that visualizes trees using MatplotLib
@@ -134,7 +135,7 @@ def render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, sho
     :param font_size: Font size for text
     """
     root = parasite_tree.root_node
-    render_parasite_helper(fig, root, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, font_size)
+    render_parasite_helper(fig, root, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, tip_font_size, internal_font_size)
 
 def populate_host_tracks(node, recon, host_lookup):
     """
@@ -155,7 +156,7 @@ def populate_host_tracks(node, recon, host_lookup):
         populate_host_tracks(node.right_node, recon, host_lookup)
 
 
-def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, font_size):
+def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, tip_font_size, internal_font_size):
     """
     Helper function for rendering the parasite tree.
     :param fig: Figure object that visualizes trees using MatplotLib
@@ -198,15 +199,15 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
 
     # Render parasite node and recurse if not a leaf
     if node.is_leaf:
-        render_parasite_node(fig, node, event, font_size)
+        render_parasite_node(fig, node, event, tip_font_size)
         return
 
     left_node, right_node = get_children(node, recon, parasite_lookup)
 
     render_parasite_helper(fig, left_node, recon, host_lookup, \
-        parasite_lookup, show_internal_labels, show_freq, font_size)
+        parasite_lookup, show_internal_labels, show_freq, tip_font_size, internal_font_size)
     render_parasite_helper(fig, right_node, recon, host_lookup, \
-        parasite_lookup, show_internal_labels, show_freq, font_size)
+        parasite_lookup, show_internal_labels, show_freq, tip_font_size, internal_font_size)
     
     
     if node.layout.row == left_node.layout.row:
@@ -216,7 +217,7 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
 
     
     render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup)
-    render_parasite_node(fig, node, event, font_size, show_internal_labels, show_freq)
+    render_parasite_node(fig, node, event, tip_font_size, show_internal_labels, show_freq)
 
 def render_parasite_node(fig, node, event, font_size, show_internal_labels=False, show_freq=False):
     """
@@ -241,18 +242,19 @@ def render_parasite_node(fig, node, event, font_size, show_internal_labels=False
     if show_freq:
         fig.text(node_xy, event.freq, render_color, font_size = font_size)
 
-def calculate_font_size(n):
+def calculate_font_size(num_tips, num_nodes):
     """
     Calculates the font_size
     :param n: An integer
     :return An integer
     """
-    output = FONT_SIZE - n
-
-    if output < MIN_FONT_SIZE:
-        return MIN_FONT_SIZE
-    else:
-        return output
+    print(num_tips)
+    print(num_nodes)
+    print(num_nodes - num_tips)
+    tip_font_size = num_tips/num_nodes
+    internal_font_size = (num_nodes - num_tips) /num_nodes
+    print(tip_font_size, internal_font_size)
+    return tip_font_size, internal_font_size
 
 def render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup):
     """

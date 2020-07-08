@@ -27,7 +27,7 @@ DOT_Z_ORDER = 1
 FONTSIZE = 6
 TRANSFERSIZE = 10
 NODESIZE = 8
-NODEFONTSIZE = 0.4
+NODEFONTSIZE = 0.12
 
 DEFAULT_ALIGNMENT = 'bottom'
 
@@ -77,10 +77,10 @@ class FigureWrapper:
         """
         x, y = point
 
-        tp = TextPath(point, text, size= NODEFONTSIZE)
+        tp = TextPath(point, text, size= font_size)
         self.fig.gca().add_patch(PathPatch(tp, color=col, linewidth = TEXTWIDTH))
 
-        #elf.axis.text(x, y, text, color=col, fontsize=font_size, verticalalignment=vertical_alignment)
+        #self.axis.text(x, y, text, color=col, fontsize=font_size, verticalalignment=vertical_alignment)
 
     def show(self):
         """ 
