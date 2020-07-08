@@ -199,7 +199,7 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
 
     # Render parasite node and recurse if not a leaf
     if node.is_leaf:
-        render_parasite_node(fig, node, event, tip_font_size)
+        render_parasite_node(fig, node, event, (tip_font_size/host_node.layout.node_count))
         return
 
     left_node, right_node = get_children(node, recon, parasite_lookup)
