@@ -41,6 +41,12 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
 
     #Render Parasite Tree
     render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, tip_font_size, internal_font_size)
+
+    for node in host_tree.postorder_list:
+        if node.name == 'h0' or node.name == 'h11':
+            print(node.name + ' ' + str(node.layout.offset) + ' ' + str(node.layout.node_count))
+
+    #Show Visualization
     fig.show()
 
 
@@ -189,7 +195,7 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
     # host_col = host_node.layout.col
     # host_x = host_node.layout.x
     host_y = host_node.layout.y
-    node.set_layout(row=host_row, x=node.layout.col, y=host_y + host_node.layout.offset)
+    node.set_layout(row=host_row, x=node.layout.col, y=host_y)
 
     if event.event_type is EventType.COSPECIATION:
         #node.layout.x += COSPECIATION_OFFSET
@@ -344,7 +350,6 @@ def render_cospeciation_branch(node, host_lookup, parasite_lookup, recon, fig):
         host_node.layout.lower_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
         stop_row = host_node.left_node.layout.row
-        host_node.layout.h_track += 1
         connect_child_to_parent(node, left_node, host_lookup, recon, fig, stop_row=stop_row)
 
     #Draw Right node
@@ -353,7 +358,6 @@ def render_cospeciation_branch(node, host_lookup, parasite_lookup, recon, fig):
         host_node.layout.upper_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
     else:
         stop_row = host_node.right_node.layout.row
-        host_node.layout.h_track += 1
         connect_child_to_parent(node, right_node, host_lookup, recon, fig, stop_row=stop_row)
 
 
