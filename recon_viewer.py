@@ -12,7 +12,7 @@ from render_settings import LEAF_NODE_COLOR, COSPECIATION_NODE_COLOR, \
     PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET, NODE_OFFSET, \
     TIP_TEXT_OFFSET, FONT_SIZE, MIN_FONT_SIZE, LEAF_NODE_SHAPE, COSPECIATION_NODE_SHAPE, \
     DUPLICATION_NODE_SHAPE, TRANSFER_NODE_SHAPE, TIP_ALIGNMENT, LOSS_EDGE_COLOR, MAX_FONT_SIZE, \
-    INTERNAL_NODE_ALPHA
+    INTERNAL_NODE_ALPHA, INTERNAL_TEXT_OFFSET
 
 def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, show_freq=False):
     """ Renders a reconciliation using matplotlib
@@ -102,17 +102,18 @@ def render_host_helper(fig, node, show_internal_labels, tip_font_size, internal_
     node_x, node_y = node.layout.x, node.layout.y
     node_xy = (node_x, node_y)
     if node.is_leaf:
+        text_offset = (node_x + TIP_TEXT_OFFSET[0], node_y + TIP_TEXT_OFFSET[1])
         fig.dot(node_xy, col = HOST_NODE_COLOR)
         if node.layout.node_count == 0:
-            fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name, HOST_NODE_COLOR, size = tip_font_size, vertical_alignment=TIP_ALIGNMENT)
+            fig.text(text_offset, node.name, HOST_NODE_COLOR, size = tip_font_size, vertical_alignment=TIP_ALIGNMENT)
         else:
-            fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name, HOST_NODE_COLOR, size = tip_font_size/node.layout.node_count, vertical_alignment=TIP_ALIGNMENT)    
+            fig.text(text_offset, node.name, HOST_NODE_COLOR, size = tip_font_size/node.layout.node_count, vertical_alignment=TIP_ALIGNMENT)    
     else:
         fig.dot(node_xy, col = HOST_NODE_COLOR)  # Render host node
         if show_internal_labels:
             color = HOST_NODE_COLOR[0:3] + (INTERNAL_NODE_ALPHA,)
-            print(color)
-            fig.text(node_xy, node.name, color, size = internal_font_size)
+            text_xy = (node_x + INTERNAL_TEXT_OFFSET[0], node_y + INTERNAL_TEXT_OFFSET[1])
+            fig.text(text_xy, node.name, color, size = internal_font_size)
         left_x, left_y = node.left_node.layout.x, node.left_node.layout.y
         right_x, right_y = node.right_node.layout.x, node.right_node.layout.y
         fig.line(node_xy, (node_x, left_y), HOST_EDGE_COLOR)
@@ -246,7 +247,8 @@ def render_parasite_node(fig, node, event, font_size, show_internal_labels=False
         fig.text((node.layout.x + TIP_TEXT_OFFSET[0], node.layout.y - + TIP_TEXT_OFFSET[1]), node.name, render_color, size = font_size, vertical_alignment=TIP_ALIGNMENT)
     elif show_internal_labels:
         render_color = (render_color[0], render_color[1], render_color[2], INTERNAL_NODE_ALPHA)
-        fig.text(node_xy, node.name, render_color, size = font_size)
+        text_xy = (node_xy[0] + INTERNAL_TEXT_OFFSET[0], node_xy[1] + INTERNAL_TEXT_OFFSET[1])
+        fig.text(text_xy, node.name, render_color, size = font_size)
 
     if show_freq:
         fig.text(node_xy, event.freq, render_color, size = font_size)
@@ -363,9 +365,10 @@ def render_cospeciation_branch(node, host_lookup, parasite_lookup, recon, fig):
     right_mapping_node = recon.mapping_of(right_node.name)
     right_host_node = host_lookup[right_mapping_node.host]
     #Draw left node
+    offset = host_node.layout.offset
     if host_node.left_node.name == left_host_node.name:
         render_curved_line_to(node_xy, left_xy, fig)
-        host_node.layout.lower_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
+        host_node.layout.lower_v_track += (host_node.layout.x - node_xy[0]) / offset
     else:
         stop_row = host_node.left_node.layout.row
         connect_child_to_parent(node, left_node, host_lookup, recon, fig, stop_row=stop_row)
@@ -373,7 +376,7 @@ def render_cospeciation_branch(node, host_lookup, parasite_lookup, recon, fig):
     #Draw Right node
     if host_node.right_node.name == right_host_node.name:
         render_curved_line_to(node_xy, right_xy, fig)
-        host_node.layout.upper_v_track += (host_node.layout.x - node_xy[0]) / TRACK_OFFSET
+        host_node.layout.upper_v_track += (host_node.layout.x - node_xy[0]) / offset
     else:
         stop_row = host_node.right_node.layout.row
         connect_child_to_parent(node, right_node, host_lookup, recon, fig, stop_row=stop_row)
