@@ -21,8 +21,6 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
     """
     host_tree, parasite_tree, recon, consistency_type = utils.convert_to_objects(host_dict, parasite_dict, recon_dict)
 
-    give_childeren_parents(host_tree)
-
     fig = plot_tools.FigureWrapper("Reconciliation")
 
     num_tips = len(host_tree.leaf_list) + len(parasite_tree.leaf_list)
@@ -71,13 +69,6 @@ def set_offsets(tree):
             node.layout.offset = TRACK_OFFSET
         else:
             node.layout.offset = abs(y_0 - y_1) / (node.layout.node_count + 3)
-
-
-#TODO Fix Bug
-def give_childeren_parents(host_tree):
-    for node in host_tree.postorder_list:
-        if node.right_node:
-            node.right_node.parent_node = node
 
 def render_host(fig, host_tree, show_internal_labels, tip_font_size, internal_font_size):
     """
@@ -459,6 +450,8 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig, stop_row=
             v_track = parent_node.iter_track("UV")
         else:
             v_track = parent_node.iter_track("LV")
+            while v_track < parent_node.layout.upper_v_track:
+                v_track = parent_node.iter_track("LV")
         h_track = parent_node.iter_track("H")
         offset = parent_node.layout.offset
 
