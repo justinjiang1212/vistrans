@@ -17,17 +17,18 @@ from render_settings import COSPECIATION_NODE_COLOR, \
     DUPLICATION_NODE_COLOR, TRANSFER_NODE_COLOR, HOST_NODE_COLOR, \
     PARASITE_EDGE_COLOR, RED, MAROON, GREEN, BLUE, PURPLE, BLACK, GRAY, \
     COSPECIATION_NODE_SHAPE, DUPLICATION_NODE_SHAPE, TRANSFER_NODE_SHAPE, \
-    LOSS_EDGE_COLOR
+    LOSS_EDGE_COLOR, CENTER_CONSTANT
 
 
 LINEWIDTH = 2
 TEXTWIDTH = .3
 LINE_Z_ORDER = 0
 DOT_Z_ORDER = 1
-FONTSIZE = 6
+SIZE = 6
 TRANSFERSIZE = 10
 NODESIZE = 8
 NODEFONTSIZE = 0.12
+FONTSIZE = 12
 
 DEFAULT_ALIGNMENT = 'bottom'
 
@@ -71,13 +72,14 @@ class FigureWrapper:
         x, y = point
         self.axis.plot(x, y, marker, color=col, zorder=DOT_Z_ORDER)
     
-    def text(self, point, text, col=BLACK, font_size=FONTSIZE, vertical_alignment=DEFAULT_ALIGNMENT ):
+    def text(self, point, text, col=BLACK, size=SIZE, vertical_alignment=DEFAULT_ALIGNMENT ):
         """
         Plot text at s at point p
         """
-        x, y = point
+        if vertical_alignment == 'center':
+            point = (point[0], point[1] - size * CENTER_CONSTANT)
 
-        tp = TextPath(point, text, size= font_size)
+        tp = TextPath(point, text, size= size)
         self.fig.gca().add_patch(PathPatch(tp, color=col, linewidth = TEXTWIDTH))
 
         #self.axis.text(x, y, text, color=col, fontsize=font_size, verticalalignment=vertical_alignment)
