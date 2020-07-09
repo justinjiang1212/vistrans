@@ -12,6 +12,8 @@ TIP_TEXT_OFFSET = (.3, 0)
 # Define new colors as 4-tuples of the form (r, g, b, 1) where
 # r, g, b are values between 0 and 1 indicating the amount of red, green, and blue.
 RED = (1, 0, 0, 1)
+RED_BLUSH = (1, 0, 0, 0.5)
+ROYAL_BLUE = (.255, .412, .882,1 )
 MAROON = (0.5, 0, 0, 1)
 GREEN = (0, 0.5, 0, 1)
 BLUE = (0, 0, 1, 1)
@@ -27,7 +29,7 @@ DUPLICATION_NODE_COLOR = GREEN
 TRANSFER_NODE_COLOR = RED
 HOST_NODE_COLOR = BLACK
 HOST_EDGE_COLOR = BLACK
-PARASITE_EDGE_COLOR = GRAY
+PARASITE_EDGE_COLOR = RED_BLUSH
 LOSS_EDGE_COLOR = PURPLE
 
 LEAF_NODE_SHAPE = "o"
