@@ -28,18 +28,20 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
     num_tips = len(host_tree.leaf_list) + len(parasite_tree.leaf_list)
     num_nodes = len(host_tree.postorder_list) + len(parasite_tree.postorder_list)
     tip_font_size, internal_font_size = calculate_font_size(num_tips, num_nodes)
+
+
+    root = parasite_tree.root_node
+    host_lookup = host_tree.name_to_node_dict()
+    
+    #Populate Host Nodes with track count
+    populate_host_tracks(root, recon, host_lookup)
     
     #Render Host Tree
     render_host(fig, host_tree, show_internal_labels, tip_font_size, internal_font_size)
-    host_lookup = host_tree.name_to_node_dict()
     parasite_lookup = parasite_tree.name_to_node_dict()
-
-    #Populate Host Nodes with offsets
-    root = parasite_tree.root_node
-    populate_host_tracks(root, recon, host_lookup)
-    set_offsets(host_tree)
-
+    
     #Render Parasite Tree
+    set_offsets(host_tree)
     render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, tip_font_size, internal_font_size)
 
     #Show Visualization
@@ -109,7 +111,10 @@ def render_host_helper(fig, node, show_internal_labels, tip_font_size, internal_
     node_xy = (node_x, node_y)
     if node.is_leaf:
         fig.dot(node_xy, col = HOST_NODE_COLOR)
-        fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name, size = tip_font_size, vertical_alignment=TIP_ALIGNMENT)
+        if node.layout.node_count == 0:
+            fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name, size = tip_font_size, vertical_alignment=TIP_ALIGNMENT)
+        else:
+            fig.text((node_x + TIP_TEXT_OFFSET[0], node_y - TIP_TEXT_OFFSET[1]), node.name, size = tip_font_size/node.layout.node_count, vertical_alignment=TIP_ALIGNMENT)    
     else:
         fig.dot(node_xy, col = HOST_NODE_COLOR)  # Render host node
         if show_internal_labels:
