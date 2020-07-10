@@ -4,16 +4,11 @@ View a single reconciliation using matplotlib
 """
 
 from recon import EventType
+from tree import Track
 from math import exp, ceil
 import utils
 import plot_tools
-from render_settings import LEAF_NODE_COLOR, COSPECIATION_NODE_COLOR, \
-    DUPLICATION_NODE_COLOR, TRANSFER_NODE_COLOR, HOST_NODE_COLOR, HOST_EDGE_COLOR, \
-    PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET, NODE_OFFSET, \
-    TIP_TEXT_OFFSET, FONT_SIZE, MIN_FONT_SIZE, LEAF_NODE_SHAPE, COSPECIATION_NODE_SHAPE, \
-    DUPLICATION_NODE_SHAPE, TRANSFER_NODE_SHAPE, TIP_ALIGNMENT, LOSS_EDGE_COLOR, MAX_FONT_SIZE, \
-    INTERNAL_NODE_ALPHA, INTERNAL_TEXT_OFFSET, TRANSFER_TRANSPARENCY, HOST_NODE_BORDER_COLOR, \
-    PARASITE_NODE_BORDER_COLOR
+from render_settings import *
 
 def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, show_freq=False):
     """ Renders a reconciliation using matplotlib
@@ -23,7 +18,7 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
     """
     host_tree, parasite_tree, recon, consistency_type = utils.convert_to_objects(host_dict, parasite_dict, recon_dict)
 
-    fig = plot_tools.FigureWrapper("Reconciliation")
+    fig = plot_tools.FigureWrapper(TREE_TITLE)
 
     #Calculates font sizes
     num_tips = len(host_tree.leaf_list) + len(parasite_tree.leaf_list)
@@ -214,7 +209,7 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
 
     # Render parasite node and recurse if not a leaf
     if node.is_leaf:
-        node.layout.y += host_node.iter_track("H") * host_node.layout.offset
+        node.layout.y += host_node.iter_track(Track.HORIZONTAL) * host_node.layout.offset
         render_parasite_node(fig, node, event, (tip_font_size/host_node.layout.node_count))
         return
 
@@ -229,6 +224,7 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
     render_parasite_helper(fig, right_node, recon, host_lookup, \
         parasite_lookup, show_internal_labels, show_freq, tip_font_size, internal_font_size)
     
+    #Checking to see if left node is mapped to the same host node as parent
     if node.layout.row == left_node.layout.row:
         node.set_layout(y=left_node.layout.y)
     elif event.event_type is EventType.TRANSFER:
@@ -252,20 +248,20 @@ def render_parasite_node(fig, node, event, font_size, show_internal_labels=False
     
     fig.dot(node_xy, col = render_color, marker = render_shape)
     if node.is_leaf:
-        fig.text((node.layout.x + TIP_TEXT_OFFSET[0], node.layout.y - + TIP_TEXT_OFFSET[1]), node.name, render_color, size = font_size, vertical_alignment=TIP_ALIGNMENT)
+        fig.text((node.layout.x + TIP_TEXT_OFFSET[0], node.layout.y + TIP_TEXT_OFFSET[1]), node.name, render_color, size = font_size, vertical_alignment=TIP_ALIGNMENT)
     elif show_internal_labels:
         render_color = (render_color[0], render_color[1], render_color[2], INTERNAL_NODE_ALPHA)
         text_xy = (node_xy[0] + INTERNAL_TEXT_OFFSET[0], node_xy[1] + INTERNAL_TEXT_OFFSET[1])
         fig.text(text_xy, node.name, render_color, size = font_size, border_col=PARASITE_NODE_BORDER_COLOR)
-
     if show_freq:
         fig.text(node_xy, event.freq, render_color, size = font_size, border_col=PARASITE_NODE_BORDER_COLOR)
 
 def calculate_font_size(num_tips, num_nodes):
     """
     Calculates the font_size
-    :param n: An integer
-    :return An integer
+    :param num_tips: Number of tips in a tree
+    :param num_nodes: Number of nodes in a tree
+    :return a tuple containing the font sizes for the tips and internal nodes of a tree
     """
     tip_font_size = cap_font_size(num_tips/num_nodes)
     internal_font_size = cap_font_size((num_nodes - num_tips) /num_nodes)
@@ -300,7 +296,6 @@ def render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup):
 
     left_node, right_node = get_children(node, recon, parasite_lookup)
 
-    left_xy = (left_node.layout.x, left_node.layout.y)
     right_xy = (right_node.layout.x, right_node.layout.y)
 
     mapping_node = recon.mapping_of(node.name)
@@ -308,17 +303,14 @@ def render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup):
 
     if event.event_type is EventType.COSPECIATION:
         render_cospeciation_branch(node, host_lookup, parasite_lookup, recon, fig)
-        
-    if event.event_type is EventType.DUPLICATION:
+    elif event.event_type is EventType.DUPLICATION:
         connect_children(node, host_lookup, parasite_lookup, recon, fig)
-
-    if event.event_type is EventType.TRANSFER:
+    elif event.event_type is EventType.TRANSFER:
         render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon, right_node)
         connect_child_to_parent(node, left_node, host_lookup, recon, fig)
-                
-    if event.event_type is EventType.LOSS: 
-        render_loss_branch(node_xy, left_xy, fig)
-
+    else:
+        print(event)
+    # Losses are implicitly implied and are not mapped to any specific node
 
 def connect_children(node, host_lookup, parasite_lookup, recon, fig):
     """
@@ -346,7 +338,7 @@ def render_loss_branch(node_xy, next_xy, fig):
 
 def render_cospeciation_branch(node, host_lookup, parasite_lookup, recon, fig):
     """
-    Renders the a cospeciation branch.
+    Renders the cospeciation branch.
     :param node: Node object
     :param host_lookup: Dictionary with host node names as the key and host node objects as the values
     :param parasite_lookup: Dictionary with parasite node names as the key and parasite node objects as the values
@@ -360,11 +352,10 @@ def render_cospeciation_branch(node, host_lookup, parasite_lookup, recon, fig):
     right_xy = (right_node.layout.x, right_node.layout.y)
 
     mapping_node = recon.mapping_of(node.name)
-    event = recon.event_of(mapping_node)
     host_node = host_lookup[mapping_node.host]
 
     #Update h_track
-    host_node.iter_track("H")
+    host_node.iter_track(Track.HORIZONTAL)
 
     left_mapping_node = recon.mapping_of(left_node.name)
     left_host_node = host_lookup[left_mapping_node.host]
@@ -478,12 +469,12 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig, stop_row=
     while host_node.layout.row != stop_row and host_node.parent_node:
         parent_node = host_node.parent_node
         if parent_node.layout.row < host_node.layout.row:
-            v_track = parent_node.iter_track("UV")
+            v_track = parent_node.iter_track(Track.UPPER_VERTICAL)
         else:
-            v_track = parent_node.iter_track("LV")
+            v_track = parent_node.iter_track(Track.LOWER_VERTICAL)
             while v_track < parent_node.layout.upper_v_track:
-                v_track = parent_node.iter_track("LV")
-        h_track = parent_node.iter_track("H")
+                v_track = parent_node.iter_track(Track.LOWER_VERTICAL)
+        h_track = parent_node.iter_track(Track.HORIZONTAL)
         offset = parent_node.layout.offset
 
         sub_parent_xy = (parent_node.layout.x - (offset * v_track), \

@@ -10,6 +10,11 @@ class TreeType(Enum):
     HOST = 1
     PARASITE = 2
 
+class Track(Enum):
+    HORIZONTAL = 1
+    LOWER_VERTICAL = 2
+    UPPER_VERTICAL = 3
+
 class Node:
     """ Defines a node of a tree """
     def __init__(self, name):
@@ -49,15 +54,15 @@ class Node:
 
     def iter_track(self, track):
         """updates track number and returns previous track of host node"""
-        if track == "H":
+        if track == Track.HORIZONTAL:
             self.layout.h_track = self.layout.h_track + 1
             return self.layout.h_track - 1
         
-        if track == "UV":
+        if track == Track.UPPER_VERTICAL:
             self.layout.upper_v_track += 1
             return self.layout.upper_v_track - 1
         
-        if track == "LV":
+        if track == Track.LOWER_VERTICAL:
             self.layout.lower_v_track += 1
             return self.layout.lower_v_track - 1
     
