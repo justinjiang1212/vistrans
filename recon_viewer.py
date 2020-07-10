@@ -430,6 +430,7 @@ def render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon, rig
     child_mapping_node = recon.mapping_of(right_node.name)
     child_host_node = host_lookup[child_mapping_node.host]
 
+    #check temporal consistency of transfer event
     if child_host_node.parent_node.layout.col < node.layout.col:
         #Draw right node, which is transfered
         mid_xy = (node_xy[0], right_xy[1])          #xy coords of midpoint
