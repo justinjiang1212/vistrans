@@ -153,7 +153,6 @@ def populate_host_tracks(node, recon, host_lookup):
         if is_unique(node, host_name, recon):
             host_node.update_count()
         
-    
     if not(node.is_leaf):
         populate_host_tracks(node.left_node, recon, host_lookup)
         populate_host_tracks(node.right_node, recon, host_lookup)
@@ -250,7 +249,7 @@ def render_parasite_node(fig, node, event, font_size, show_internal_labels=False
     if node.is_leaf:
         fig.text((node.layout.x + TIP_TEXT_OFFSET[0], node.layout.y + TIP_TEXT_OFFSET[1]), node.name, render_color, size = font_size, vertical_alignment=TIP_ALIGNMENT)
     elif show_internal_labels:
-        render_color = (render_color[0], render_color[1], render_color[2], INTERNAL_NODE_ALPHA)
+        render_color = render_color[0:3] + (INTERNAL_NODE_ALPHA,)
         text_xy = (node_xy[0] + INTERNAL_TEXT_OFFSET[0], node_xy[1] + INTERNAL_TEXT_OFFSET[1])
         fig.text(text_xy, node.name, render_color, size = font_size, border_col=PARASITE_NODE_BORDER_COLOR)
     if show_freq:
