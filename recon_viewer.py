@@ -12,7 +12,7 @@ from render_settings import LEAF_NODE_COLOR, COSPECIATION_NODE_COLOR, \
     PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET, NODE_OFFSET, \
     TIP_TEXT_OFFSET, FONT_SIZE, MIN_FONT_SIZE, LEAF_NODE_SHAPE, COSPECIATION_NODE_SHAPE, \
     DUPLICATION_NODE_SHAPE, TRANSFER_NODE_SHAPE, TIP_ALIGNMENT, LOSS_EDGE_COLOR, MAX_FONT_SIZE, \
-    INTERNAL_NODE_ALPHA, INTERNAL_TEXT_OFFSET
+    INTERNAL_NODE_ALPHA, INTERNAL_TEXT_OFFSET, TRANSFER_TRANSPARENCY
 
 def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, show_freq=False):
     """ Renders a reconciliation using matplotlib
@@ -446,7 +446,7 @@ def render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon, rig
         fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
         fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
     else:
-        transfer_edge_color = (PARASITE_EDGE_COLOR[0] , PARASITE_EDGE_COLOR[1] , PARASITE_EDGE_COLOR[2], .5)
+        transfer_edge_color = (PARASITE_EDGE_COLOR[0] , PARASITE_EDGE_COLOR[1] , PARASITE_EDGE_COLOR[2], TRANSFER_TRANSPARENCY)
         fig.line(node_xy, right_xy, transfer_edge_color)
 
 def connect_child_to_parent(node, child_node, host_lookup, recon, fig, stop_row=None):
