@@ -12,7 +12,8 @@ from render_settings import LEAF_NODE_COLOR, COSPECIATION_NODE_COLOR, \
     PARASITE_EDGE_COLOR, VERTICAL_OFFSET, COSPECIATION_OFFSET, TRACK_OFFSET, NODE_OFFSET, \
     TIP_TEXT_OFFSET, FONT_SIZE, MIN_FONT_SIZE, LEAF_NODE_SHAPE, COSPECIATION_NODE_SHAPE, \
     DUPLICATION_NODE_SHAPE, TRANSFER_NODE_SHAPE, TIP_ALIGNMENT, LOSS_EDGE_COLOR, MAX_FONT_SIZE, \
-    INTERNAL_NODE_ALPHA, INTERNAL_TEXT_OFFSET, TRANSFER_TRANSPARENCY
+    INTERNAL_NODE_ALPHA, INTERNAL_TEXT_OFFSET, TRANSFER_TRANSPARENCY, HOST_NODE_BORDER_COLOR, \
+    PARASITE_NODE_BORDER_COLOR
 
 def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, show_freq=False):
     """ Renders a reconciliation using matplotlib
@@ -113,7 +114,7 @@ def render_host_helper(fig, node, show_internal_labels, tip_font_size, internal_
         if show_internal_labels:
             color = HOST_NODE_COLOR[0:3] + (INTERNAL_NODE_ALPHA,)
             text_xy = (node_x + INTERNAL_TEXT_OFFSET[0], node_y + INTERNAL_TEXT_OFFSET[1])
-            fig.text(text_xy, node.name, color, size = internal_font_size)
+            fig.text(text_xy, node.name, color, size = internal_font_size, border_col=HOST_NODE_BORDER_COLOR)
         left_x, left_y = node.left_node.layout.x, node.left_node.layout.y
         right_x, right_y = node.right_node.layout.x, node.right_node.layout.y
         fig.line(node_xy, (node_x, left_y), HOST_EDGE_COLOR)
@@ -248,10 +249,10 @@ def render_parasite_node(fig, node, event, font_size, show_internal_labels=False
     elif show_internal_labels:
         render_color = (render_color[0], render_color[1], render_color[2], INTERNAL_NODE_ALPHA)
         text_xy = (node_xy[0] + INTERNAL_TEXT_OFFSET[0], node_xy[1] + INTERNAL_TEXT_OFFSET[1])
-        fig.text(text_xy, node.name, render_color, size = font_size)
+        fig.text(text_xy, node.name, render_color, size = font_size, border_col=PARASITE_NODE_BORDER_COLOR)
 
     if show_freq:
-        fig.text(node_xy, event.freq, render_color, size = font_size)
+        fig.text(node_xy, event.freq, render_color, size = font_size, border_col=PARASITE_NODE_BORDER_COLOR)
 
 def calculate_font_size(num_tips, num_nodes):
     """
@@ -401,7 +402,6 @@ def get_children(node, recon, parasite_lookup):
     right_node = parasite_lookup[right_node_name]
 
     return left_node, right_node
-
 
 def render_curved_line_to(node_xy, other_xy, fig):
     """

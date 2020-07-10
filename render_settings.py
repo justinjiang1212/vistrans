@@ -6,7 +6,7 @@ COSPECIATION_OFFSET = .3    # Offest for drawing parasite nodes closer to host
 NODE_OFFSET = 0.3
 TRACK_OFFSET = 0.3
 TIP_TEXT_OFFSET = (.3, 0)
-INTERNAL_TEXT_OFFSET = (.05, .05)
+INTERNAL_TEXT_OFFSET = (0, 0)
 
 
 # Colors
@@ -21,6 +21,7 @@ GREEN = (0, 0.5, 0, 1)
 PURPLE = (0.5, 0, 0.5, 1)
 BLACK = (0, 0, 0, 1)
 GRAY = (0.5, 0.5, 0.5, 1)
+WHITE = (1, 1, 1, 1)
 PURPLE = (.843, .00, 1.0, 1)
 
 BLUE = (.09, .216, .584, 1)
@@ -55,3 +56,6 @@ MIN_FONT_SIZE = 0
 MAX_FONT_SIZE = .3
 
 INTERNAL_NODE_ALPHA = 0.7
+
+HOST_NODE_BORDER_COLOR = WHITE
+PARASITE_NODE_BORDER_COLOR = BLACK

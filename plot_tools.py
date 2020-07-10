@@ -11,6 +11,7 @@ from matplotlib.lines import Line2D
 from matplotlib.collections import LineCollection
 from matplotlib.textpath import TextPath
 from matplotlib.patches import PathPatch
+import matplotlib.patheffects as PathEffects
 
 
 from render_settings import COSPECIATION_NODE_COLOR, \
@@ -22,8 +23,12 @@ from render_settings import COSPECIATION_NODE_COLOR, \
 
 LINEWIDTH = 2
 TEXTWIDTH = .3
+BORDER_WIDTH = 1.2
+
 LINE_Z_ORDER = 0
 DOT_Z_ORDER = 1
+TEXT_Z_ORDER = 2
+
 SIZE = 6
 TRANSFERSIZE = 10
 NODESIZE = 8
@@ -72,7 +77,7 @@ class FigureWrapper:
         x, y = point
         self.axis.plot(x, y, marker, color=col, zorder=DOT_Z_ORDER)
     
-    def text(self, point, text, col=BLACK, size=SIZE, vertical_alignment=DEFAULT_ALIGNMENT ):
+    def text(self, point, text, col=BLACK, size=SIZE, vertical_alignment=DEFAULT_ALIGNMENT, border_col=None):
         """
         Plot text at s at point p
         """
@@ -80,7 +85,10 @@ class FigureWrapper:
             point = (point[0], point[1] - size * CENTER_CONSTANT)
 
         tp = TextPath(point, text, size= size)
-        self.fig.gca().add_patch(PathPatch(tp, color=col, linewidth = TEXTWIDTH))
+        path_patch = PathPatch(tp, color=col, linewidth = TEXTWIDTH, zorder=TEXT_Z_ORDER)
+        if border_col:
+            path_patch.set_path_effects([PathEffects.withStroke(linewidth=BORDER_WIDTH, foreground=border_col)])
+        self.fig.gca().add_patch(path_patch)
 
         #self.axis.text(x, y, text, color=col, fontsize=font_size, verticalalignment=vertical_alignment)
 
