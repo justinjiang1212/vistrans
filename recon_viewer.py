@@ -446,7 +446,8 @@ def render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon, rig
         fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
         fig.line(mid_xy, right_xy, PARASITE_EDGE_COLOR)
     else:
-        fig.line(node_xy, right_xy, PARASITE_EDGE_COLOR)
+        transfer_edge_color = (PARASITE_EDGE_COLOR[0] , PARASITE_EDGE_COLOR[1] , PARASITE_EDGE_COLOR[2], .5)
+        fig.line(node_xy, right_xy, transfer_edge_color)
 
 def connect_child_to_parent(node, child_node, host_lookup, recon, fig, stop_row=None):
     """
