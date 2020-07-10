@@ -32,28 +32,28 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
 
     root = parasite_tree.root_node
     host_lookup = host_tree.name_to_node_dict()
+    parasite_lookup = parasite_tree.name_to_node_dict()
     
     #Populate Host Nodes with track count
     populate_host_tracks(root, recon, host_lookup)
     
     #Render Host Tree
     render_host(fig, host_tree, show_internal_labels, tip_font_size, internal_font_size)
-    parasite_lookup = parasite_tree.name_to_node_dict()
+    
+    #Sets the offsets between tracks on each host node
+    set_offsets(host_tree)
     
     #Render Parasite Tree
-    set_offsets(host_tree)
     render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, tip_font_size, internal_font_size)
 
     #Show Visualization
     fig.show()
 
-
 def set_offsets(tree):
     """
     Populates the nodes of a Tree with an offset
-    :param tree: 
+    :param tree: Tree Object
     """
-
     pos_dict = tree.pos_dict
     
     for node in tree.postorder_list:
@@ -66,7 +66,6 @@ def set_offsets(tree):
                         y_1 = logical_pos[0]
             else:
                 y_1 = max(node.left_node.layout.row, node.right_node.layout.row)
-        
         if y_1 == None or node.layout.node_count == 0:
             node.layout.offset = TRACK_OFFSET
         else:
@@ -77,7 +76,8 @@ def render_host(fig, host_tree, show_internal_labels, tip_font_size, internal_fo
     Renders the host tree
     :param host_tree: Host tree represented as a Tree object
     :param show_internal_labels: Boolean that determines whether or not the internal labels are shown
-    :param font_size: Font size for text
+    :param tip_font_size: Font size for the text of the tips of the tree
+    :param internal_font_size: Font size for text of the internal nodes of the tree
     """
     set_host_node_layout(host_tree)
     root = host_tree.root_node
@@ -96,7 +96,8 @@ def render_host_helper(fig, node, show_internal_labels, tip_font_size, internal_
     Helper function for rendering the host tree.
     :param node: node object
     :param show_internal_labels: Boolean that determines whether or not the internal labels are shown
-    :param font_size: Font size for text
+    :param tip_font_size: Font size for the text of the tips of the tree
+    :param internal_font_size: Font size for text of the internal nodes of the tree
     :param host_tree: Tree object representing a Host Tree
     """
     host_tree.pos_dict[(node.layout.row, node.layout.col)] = node
@@ -134,7 +135,8 @@ def render_parasite(fig, parasite_tree, recon, host_lookup, parasite_lookup, sho
     :param parasite_lookup: Dictionary with parasite node names as the key and parasite node objects as the values
     :param show_internal_labels: Boolean that determines whether or not the internal labels are shown
     :param show_freq: Boolean that determines wheter or not the frequencies are shown
-    :param font_size: Font size for text
+    :param tip_font_size: Font size for the text of the tips of the tree
+    :param internal_font_size: Font size for text of the internal nodes of the tree
     """
     root = parasite_tree.root_node
     render_parasite_helper(fig, root, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, tip_font_size, internal_font_size)
@@ -163,6 +165,12 @@ def populate_host_tracks(node, recon, host_lookup):
 
 
 def is_unique(node, host_name, recon):
+    """
+    Determines if a node is on its own track
+    :param node: Node object
+    :param host_name: Name of host node
+    :param recon: Reconciliation Object
+    """
     left_host_name = recon.mapping_of(node.left_node.name).host
     right_host_name = recon.mapping_of(node.right_node.name).host
 
@@ -178,7 +186,8 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
     :param parasite_lookup: Dictionary with parasite node names as the key and parasite node objects as the values
     :param show_internal_labels: Boolean that determines whether or not the internal labels are shown
     :param show_freq: Boolean that determines wheter or not the frequencies are shown
-    :param font_size: Font size for text
+    :param tip_font_size: Font size for the text of the tips of the tree
+    :param internal_font_size: Font size for text of the internal nodes of the tree
     """
     # mapping_node is of type MappingNode which associates
     # a parasite to a host in a reconciliation
@@ -220,13 +229,11 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
     render_parasite_helper(fig, right_node, recon, host_lookup, \
         parasite_lookup, show_internal_labels, show_freq, tip_font_size, internal_font_size)
     
-    
     if node.layout.row == left_node.layout.row:
         node.set_layout(y=left_node.layout.y)
     elif event.event_type is EventType.TRANSFER:
         node.layout.y = host_node.layout.y + host_node.layout.h_track * host_node.layout.offset
 
-    
     render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup)
     render_parasite_node(fig, node, event, tip_font_size, show_internal_labels, show_freq)
 
@@ -295,7 +302,6 @@ def render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup):
 
     left_xy = (left_node.layout.x, left_node.layout.y)
     right_xy = (right_node.layout.x, right_node.layout.y)
-    
 
     mapping_node = recon.mapping_of(node.name)
     event = recon.event_of(mapping_node)
@@ -423,6 +429,7 @@ def render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon, rig
     :param node: Node object
     :param host_lookup: Dictionary with host node names as the key and host node objects as the values
     :param recon: Reconciliation object
+    :param right_node: The right node object of node
     """
     mapping_node = recon.mapping_of(node.name)
     host_node = host_lookup[mapping_node.host]
@@ -463,16 +470,12 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig, stop_row=
     mapping_node = recon.mapping_of(child_node.name)
     host_node = host_lookup[mapping_node.host]
     
-    
-
     if stop_row == None:
         stop_row = node.layout.row
     
     current_xy = (child_node.layout.x, child_node.layout.y)
 
-
     while host_node.layout.row != stop_row and host_node.parent_node:
-        
         parent_node = host_node.parent_node
         if parent_node.layout.row < host_node.layout.row:
             v_track = parent_node.iter_track("UV")
@@ -492,7 +495,6 @@ def connect_child_to_parent(node, child_node, host_lookup, recon, fig, stop_row=
         current_xy = sub_parent_xy
     
     node_xy = (node.layout.x, node.layout.y)
-
     mid_xy = (node_xy[0], current_xy[1])
 
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)

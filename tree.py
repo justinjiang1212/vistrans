@@ -34,7 +34,6 @@ class Node:
     def __repr__(self):
         return str(self.name)
 
-
     def get_layout(self):
         """ returns the four values listed in NodeLayout"""
         layout = self.layout
@@ -61,9 +60,6 @@ class Node:
         if track == "LV":
             self.layout.lower_v_track += 1
             return self.layout.lower_v_track - 1
-        if track == "C":
-            self.layout.speciation_track += 1
-            return self.layout.speciation_track - 1
     
     def update_count(self):
         self.layout.node_count += 1 
@@ -81,9 +77,8 @@ class NodeLayout:
         self.upper_v_track = 1  # int: track number for upper vertical host edges
         self.lower_v_track = 1  # int: track number for lower vertical host edges
         self.h_track = 1        # int: track number for horizontal host edges
-        self.speciation_track = 0
-        self.node_count = 0
-        self.offset = 0
+        self.node_count = 0     # int: Number of nodes mapped to node
+        self.offset = 0         # int: Offset between tracks of a node
 
 
 class Tree:
