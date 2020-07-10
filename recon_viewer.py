@@ -306,7 +306,7 @@ def render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup):
         connect_children(node, host_lookup, parasite_lookup, recon, fig)
 
     if event.event_type is EventType.TRANSFER:
-        render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon)
+        render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon, right_node)
         connect_child_to_parent(node, left_node, host_lookup, recon, fig)
                 
     if event.event_type is EventType.LOSS: 
@@ -414,7 +414,7 @@ def render_curved_line_to(node_xy, other_xy, fig):
     fig.line(node_xy, mid_xy, PARASITE_EDGE_COLOR)
     fig.line(mid_xy, other_xy, PARASITE_EDGE_COLOR)
 
-def render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon):
+def render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon, right_node):
     """
     Renders a transfer branch
     :param node_xy: x and y position of a node
@@ -427,12 +427,15 @@ def render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon):
     mapping_node = recon.mapping_of(node.name)
     host_node = host_lookup[mapping_node.host]
 
-    if host_node.parent_node.layout.col < node.layout.col:
-    #Draw right node, which is transfered
+    child_mapping_node = recon.mapping_of(right_node.name)
+    child_host_node = host_lookup[child_mapping_node.host]
+
+    if child_host_node.parent_node.layout.col < node.layout.col:
+        #Draw right node, which is transfered
         mid_xy = (node_xy[0], right_xy[1])          #xy coords of midpoint
         y_midpoint = abs(mid_xy[1]+ node_xy[1])/2   #value of midpoint between mid_xy and parent node
 
-        #determine if transfer is upwards or downwards, and draw trianle accordingly
+        #determine if transfer is upwards or downwards, and draw triangle accordingly
         is_upwards = True if y_midpoint < mid_xy[1] else False
         if is_upwards:
             fig.up_triangle((node_xy[0], y_midpoint), PARASITE_EDGE_COLOR)
