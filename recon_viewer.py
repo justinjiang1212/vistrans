@@ -18,7 +18,7 @@ def render(host_dict, parasite_dict, recon_dict, show_internal_labels=False, sho
     """
     host_tree, parasite_tree, recon, consistency_type = utils.convert_to_objects(host_dict, parasite_dict, recon_dict)
 
-    fig = plot_tools.FigureWrapper(TREE_TITLE)
+    fig = plot_tools.FigureWrapper(TREE_TITLE, consistency_type)
 
     #Calculates font sizes
     num_tips = len(host_tree.leaf_list) + len(parasite_tree.leaf_list)
@@ -150,7 +150,7 @@ def populate_host_tracks(node, recon, host_lookup):
     if not(event.event_type is EventType.DUPLICATION or event.event_type is EventType.TRANSFER):
         host_node.update_count()
     else:
-        if is_unique(node, host_name, recon):
+        if not(is_sharing_track(node, host_name, recon)):
             host_node.update_count()
         
     if not(node.is_leaf):
@@ -158,7 +158,7 @@ def populate_host_tracks(node, recon, host_lookup):
         populate_host_tracks(node.right_node, recon, host_lookup)
 
 
-def is_unique(node, host_name, recon):
+def is_sharing_track(node, host_name, recon):
     """
     Determines if a node is on its own track
     :param node: Node object
@@ -168,7 +168,7 @@ def is_unique(node, host_name, recon):
     left_host_name = recon.mapping_of(node.left_node.name).host
     right_host_name = recon.mapping_of(node.right_node.name).host
 
-    return host_name != left_host_name and host_name != right_host_name
+    return host_name == left_host_name or host_name == right_host_name
 
 def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_internal_labels, show_freq, tip_font_size, internal_font_size):
     """
@@ -213,7 +213,7 @@ def render_parasite_helper(fig, node, recon, host_lookup, parasite_lookup, show_
         return
 
     #If the Node is in their own track, change their position
-    if is_unique(node, host_name, recon):
+    if not(is_sharing_track(node, host_name, recon)):
         node.layout.y += host_node.layout.h_track * host_node.layout.offset
 
     left_node, right_node = get_children(node, recon, parasite_lookup)
@@ -308,7 +308,7 @@ def render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup):
         render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon, right_node)
         connect_child_to_parent(node, left_node, host_lookup, recon, fig)
     else:
-        print(event)
+        raise ValueError('%s is not an known event type' % event.event_type)
     # Losses are implicitly implied and are not mapped to any specific node
 
 def connect_children(node, host_lookup, parasite_lookup, recon, fig):
