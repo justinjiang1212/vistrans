@@ -299,19 +299,6 @@ def render_parasite_branches(fig, node, recon, host_lookup, parasite_lookup):
 
     mapping_node = recon.mapping_of(node.name)
     event = recon.event_of(mapping_node)
-    try:
-        assert event.event_type is EventType.COSPECIATION or event.event_type is EventType.DUPLICATION \
-            or event.event_type is EventType.TRANSFER, "Unknown event type: " +str(event)
-            
-        if event.event_type is EventType.COSPECIATION:
-            render_cospeciation_branch(node, host_lookup, parasite_lookup, recon, fig)
-        elif event.event_type is EventType.DUPLICATION:
-            connect_children(node, host_lookup, parasite_lookup, recon, fig)
-        elif event.event_type is EventType.TRANSFER:
-            render_transfer_branch(node_xy, right_xy, fig, node, host_lookup, recon, right_node)
-            connect_child_to_parent(node, left_node, host_lookup, recon, fig)
-    except AssertionError as msg:
-        print(msg)
 
     if event.event_type is EventType.COSPECIATION:
         render_cospeciation_branch(node, host_lookup, parasite_lookup, recon, fig)
