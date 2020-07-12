@@ -39,7 +39,7 @@ DEFAULT_ALIGNMENT = 'bottom'
 
 class FigureWrapper:
     """ Class definining plotting methods """
-    def __init__(self, title):
+    def __init__(self, title, legend_title):
         self.fig = plt.figure()
         self.axis = self.fig.subplots(1, 1) # creates a figure with one Axes (plot)
         self.axis.autoscale()
@@ -59,7 +59,7 @@ class FigureWrapper:
                               colors = [LOSS_EDGE_COLOR], label='Loss')
                           ] 
         
-        self.axis.legend(handles=legend_elements, loc='best', fontsize = FONTSIZE)
+        self.axis.legend(handles=legend_elements, loc='best', fontsize = FONTSIZE, title=legend_title)
         
 
     def line(self, point_1, point_2, col=BLACK, linestyle='-', marker=None):
