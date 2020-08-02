@@ -6,6 +6,6 @@ The purpose of this subpackage is to visualize reconciliations of a parasite/hos
 
 
 
-We used this reposotiry to develop this subpackage independedly of the main Empress development, thus, this repository lacks branches, pull requests, and other indicators of an active software development project.
+We used this reposotiry to develop this subpackage independently of the main Empress development; thus, this repository lacks branches, pull requests, and other indicators of an active software development project.
 
 The code in this reposistory was eventually subsumed into the main Empress development reposisotry, with this [pull request](https://github.com/ssantichaivekin/empress/pull/134). The main Empress package is linked in the header of this file.
