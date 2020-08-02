@@ -2,7 +2,7 @@
 
 This sub-package of Empress was developed by Justin Jiang and Trenton Wesley during the summer of 2020 for their research for Professors Ran Libeskind-Hadas and Jessica Wu.
 
-The purpose of this subpackage is to visualize reconciliations of a parasite/host mapping, which is used by biologists to study coevolution. An example of what our code does is below: 
+The purpose of this subpackage is to visualize reconciliations of a parasite/host mapping, which is used by biologists to study coevolution. An example of what our code does is below: ![Recon Image](https://github.com/justinjiang1212/vistrans/blob/master/images/Figure_1.png)
 
 
 
